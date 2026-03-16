@@ -1,0 +1,80 @@
+@startuml class_diagram
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FFFFFF
+skinparam class {
+    BackgroundColor #FFFFCC
+    BorderColor #999900
+    ArrowColor #333333
+}
+skinparam abstractClass {
+    BackgroundColor #FFE0B2
+    BorderColor #E65100
+}
+
+interface Transaction <<interface>> {
+    + register(account : Account)
+}
+
+class Deposit {
+    - value : float
+    + register(account : Account)
+}
+
+class Withdrawal {
+    - value : float
+    + register(account : Account)
+}
+
+class History {
+    - transactions : list[Transaction]
+    + add_transaction(transaction : Transaction)
+    + get_transactions() : list[Transaction]
+}
+
+abstract class Account {
+    - balance : float
+    - number : int
+    - branch : str
+    - history : History
+    + {static} new_account(client : Client, number : int) : Account
+    + get_balance() : float
+    + withdraw(value : float) : bool
+    + deposit(value : float) : bool
+}
+
+class CheckingAccount {
+    - limit : float
+    - withdrawal_limit : int
+    + withdraw(value : float) : bool
+}
+
+abstract class Client {
+    - address : str
+    - accounts : list[Account]
+    + make_transaction(account : Account, transaction : Transaction)
+    + add_account(account : Account)
+    + get_accounts() : list[Account]
+}
+
+class Individual {
+    - cpf : str
+    - name : str
+    - date_of_birth : date
+}
+
+Account <|-- CheckingAccount
+Client  <|-- Individual
+
+Transaction <|.. Deposit
+Transaction <|.. Withdrawal
+
+Account *-- "1\n-history" History
+
+History o-- "*\n-transactions" Transaction
+
+Client "1\n-client" --o "*\n-accounts" Account
+
+Client "  performs" --> "*" Transaction
+
+@enduml 
