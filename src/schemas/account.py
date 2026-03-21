@@ -1,24 +1,17 @@
 from pydantic import BaseModel
 
 
-class AccountIn(BaseModel):
+class CheckingAccountIn(BaseModel):
     balance: float
     number: int
     branch: str
-    client_id: int
-
-
-class CheckingAccountIn(AccountIn):
     limit: float
     withdrawal_limit: int
 
 
-class AccountUpdateIn(BaseModel):
-    balance: float | None
-    number: int | None
-    branch: str | None
-
-
-class CheckingAccountUpdateIn(AccountUpdateIn):
-    limit: float | None
-    withdrawal_limit: int | None
+class CheckingAccountUpdateIn(BaseModel):
+    balance: float | None = None
+    number: int | None = None
+    branch: str | None = None
+    limit: float | None = None
+    withdrawal_limit: int | None = None

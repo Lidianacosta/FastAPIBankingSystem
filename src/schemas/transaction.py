@@ -1,14 +1,9 @@
 from pydantic import BaseModel
 
 
-class TransactionIn(BaseModel):
+class DepositIn(BaseModel):
     value: float
-    account_id: int
 
 
-class DepositIn(TransactionIn):
-    pass
-
-
-class WithdrawalIn(TransactionIn):
-    pass
+class WithdrawalIn(BaseModel):
+    value: float

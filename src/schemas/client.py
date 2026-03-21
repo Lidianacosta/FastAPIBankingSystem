@@ -1,4 +1,6 @@
-from pydantic import AwareDatetime, BaseModel
+from datetime import date
+
+from pydantic import BaseModel
 
 
 class ClientIn(BaseModel):
@@ -8,14 +10,14 @@ class ClientIn(BaseModel):
 class IndividualClientIn(ClientIn):
     name: str
     cpf: str
-    date_of_birth: AwareDatetime
+    date_of_birth: date
 
 
 class ClientUpdateIn(BaseModel):
-    address: str | None
+    address: str | None = None
 
 
 class IndividualClientUpdateIn(ClientUpdateIn):
-    name: str | None
-    cpf: str | None
-    date_of_birth: AwareDatetime | None
+    name: str | None = None
+    cpf: str | None = None
+    date_of_birth: date | None = None
