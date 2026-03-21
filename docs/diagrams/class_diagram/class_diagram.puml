@@ -57,14 +57,14 @@ abstract class Client {
     + get_accounts() : list[Account]
 }
 
-class Individual {
+class IndividualClient {
     - cpf : str
     - name : str
     - date_of_birth : date
 }
 
 Account <|-- CheckingAccount
-Client  <|-- Individual
+Client  <|-- IndividualClient
 
 Transaction <|.. Deposit
 Transaction <|.. Withdrawal
