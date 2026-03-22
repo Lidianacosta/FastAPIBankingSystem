@@ -1,10 +1,10 @@
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
-from sqlmodel import select
+from sqlmodel import col, select
 
-from src.models.account import CheckingAccount
-from src.schemas.account import CheckingAccountIn
+from src.models.account import Account, CheckingAccount
+from src.schemas.account import CheckingAccountIn, CheckingAccountUpdateIn
 from src.utils.database import AsyncSessionDep
 
 
@@ -12,43 +12,96 @@ class CheckingAccountService:
     def __init__(self, session: AsyncSessionDep) -> None:
         self.session = session
 
-    async def create(self, account_in: CheckingAccountIn) -> CheckingAccount:
-        account = CheckingAccount(**account_in.model_dump())
+    async def create(
+        self, account_in: CheckingAccountIn, client_id: int
+    ) -> CheckingAccount:
+        account = Account(
+            balance=account_in.balance,
+            number=account_in.number,
+            branch=account_in.branch,
+            client_id=client_id,
+            type="checking",
+        )
         self.session.add(account)
+        await self.session.flush([account])
+
+        checking_account = CheckingAccount(
+            limit=account_in.limit,
+            withdrawal_limit=account_in.withdrawal_limit,
+            account_id=account.id,
+        )
+        self.session.add(checking_account)
         await self.session.commit()
-        await self.session.refresh(account)
-        return account
+        await self.session.refresh(checking_account)
+        return checking_account
 
     async def read_all(
         self,
+        client_id: int,
         offset: int = 0,
         limit: int = 100,
     ) -> list[CheckingAccount]:
-        statement = select(CheckingAccount).offset(offset).limit(limit)
+        statement = (
+            select(CheckingAccount)
+            .join(Account, col(CheckingAccount.account_id) == col(Account.id))
+            .where(col(Account.client_id) == client_id)
+            .offset(offset)
+            .limit(limit)
+        )
         accounts = await self.session.exec(statement)
         return list(accounts.all())
 
-    async def read(self, account_id: int) -> CheckingAccount:
-        return await self.__get_by_id(account_id)
+    async def read(self, account_id: int, client_id: int) -> CheckingAccount:
+        checking = await self.__get_by_id(account_id)
+        await self.__verify_ownership(checking, client_id)
+        return checking
 
     async def update(
-        self, account_id: int, checking_account_in: CheckingAccountIn
+        self,
+        account_id: int,
+        checking_account_in: CheckingAccountUpdateIn,
+        client_id: int,
     ) -> CheckingAccount:
-        account = await self.__get_by_id(account_id)
+        checking = await self.__get_by_id(account_id)
+        await self.__verify_ownership(checking, client_id)
+
         data = checking_account_in.model_dump(exclude_unset=True)
 
+        checking_fields = CheckingAccount.model_fields.keys()
+        account_fields = Account.model_fields.keys()
+
         for attr, value in data.items():
-            setattr(account, attr, value)
+            if attr in checking_fields:
+                setattr(checking, attr, value)
 
-        self.session.add(account)
-        await self.session.commit()
-        await self.session.refresh(account)
-        return account
+        if checking.account_id:
+            account = await self.session.get(Account, checking.account_id)
+            if account:
+                for attr, value in data.items():
+                    if attr in account_fields:
+                        setattr(account, attr, value)
+                self.session.add(account)
 
-    async def delete(self, account_id: int) -> None:
-        account = await self.__get_by_id(account_id)
-        await self.session.delete(account)
+        self.session.add(checking)
         await self.session.commit()
+        await self.session.refresh(checking)
+        return checking
+
+    async def delete(self, account_id: int, client_id: int) -> None:
+        checking = await self.__get_by_id(account_id)
+        await self.__verify_ownership(checking, client_id)
+        await self.session.delete(checking)
+        await self.session.commit()
+
+    async def __verify_ownership(
+        self, checking: CheckingAccount, client_id: int
+    ) -> None:
+        account = await self.session.get(Account, checking.account_id)
+        if not account or account.client_id != client_id:
+            raise HTTPException(
+                status_code=403,
+                detail="This account does not belong to this client",
+            )
 
     async def __get_by_id(self, account_id: int) -> CheckingAccount:
         account = await self.session.get(CheckingAccount, account_id)

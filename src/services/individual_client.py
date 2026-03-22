@@ -6,6 +6,7 @@ from sqlmodel import select
 from src.models.client import Client, IndividualClient
 from src.schemas.client import IndividualClientIn, IndividualClientUpdateIn
 from src.utils.database import AsyncSessionDep
+from src.views.client import IndividualClientOut
 
 
 class IndividualClientService:
@@ -28,31 +29,58 @@ class IndividualClientService:
         await self.session.refresh(individual_client)
         return individual_client
 
-    async def read_all(
-        self,
-        offset: int = 0,
-        limit: int = 100,
-    ) -> list[IndividualClient]:
-        statement = select(IndividualClient).offset(offset).limit(limit)
-        individual_clients = await self.session.exec(statement)
-        return list(individual_clients.all())
+    async def read(self, client_id: int) -> IndividualClientOut:
+        individual = await self.__get_by_id(client_id)
+        client = await self.session.get(Client, individual.client_id)
 
-    async def read(self, client_id: int) -> IndividualClient:
-        return await self.__get_by_id(client_id)
+        return IndividualClientOut(
+            **individual.model_dump(),
+            address=client.address if client else "",
+        )
+
+    async def read_all(
+        self, offset: int = 0, limit: int = 100
+    ) -> list[IndividualClientOut]:
+        statement = select(IndividualClient).offset(offset).limit(limit)
+        result = await self.session.exec(statement)
+        individuals = result.all()
+
+        output = []
+        for individual in individuals:
+            client = await self.session.get(Client, individual.client_id)
+            output.append(
+                IndividualClientOut(
+                    **individual.model_dump(),
+                    address=client.address if client else "",
+                )
+            )
+        return output
 
     async def update(
         self, client_id: int, client_in: IndividualClientUpdateIn
     ) -> IndividualClient:
-        client = await self.__get_by_id(client_id)
+        individual = await self.__get_by_id(client_id)
         data = client_in.model_dump(exclude_unset=True)
 
-        for attr, value in data.items():
-            setattr(client, attr, value)
+        individual_fields = IndividualClient.model_fields.keys()
+        client_fields = Client.model_fields.keys()
 
-        self.session.add(client)
+        for attr, value in data.items():
+            if attr in individual_fields:
+                setattr(individual, attr, value)
+
+        if individual.client_id:
+            client = await self.session.get(Client, individual.client_id)
+            if client:
+                for attr, value in data.items():
+                    if attr in client_fields:
+                        setattr(client, attr, value)
+                self.session.add(client)
+
+        self.session.add(individual)
         await self.session.commit()
-        await self.session.refresh(client)
-        return client
+        await self.session.refresh(individual)
+        return individual
 
     async def delete(self, client_id: int) -> None:
         client = await self.__get_by_id(client_id)
