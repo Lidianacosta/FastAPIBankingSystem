@@ -60,6 +60,13 @@ class DepositService:
     async def delete(self, transaction_id: int, account_id: int) -> None:
         transaction = await self.__get_by_id(transaction_id)
         await self.__verify_ownership(transaction, account_id)
+        checking = await self.__get_checking_by_id(account_id)
+        account = await self.session.get(Account, checking.account_id)
+        if account:
+            account.balance = (account.balance or 0.0) - (
+                transaction.value or 0.0
+            )
+            self.session.add(account)
         await self.session.delete(transaction)
         await self.session.commit()
 

@@ -6,6 +6,7 @@ from sqlmodel import col, select
 from src.models.account import Account, CheckingAccount
 from src.schemas.account import CheckingAccountIn, CheckingAccountUpdateIn
 from src.utils.database import AsyncSessionDep
+from src.views.account import CheckingAccountOut
 
 
 class CheckingAccountService:
@@ -14,7 +15,7 @@ class CheckingAccountService:
 
     async def create(
         self, account_in: CheckingAccountIn, client_id: int
-    ) -> CheckingAccount:
+    ) -> CheckingAccountOut:
         account = Account(
             balance=account_in.balance,
             number=account_in.number,
@@ -33,14 +34,14 @@ class CheckingAccountService:
         self.session.add(checking_account)
         await self.session.commit()
         await self.session.refresh(checking_account)
-        return checking_account
+        return await self.__to_out(checking_account)
 
     async def read_all(
         self,
         client_id: int,
         offset: int = 0,
         limit: int = 100,
-    ) -> list[CheckingAccount]:
+    ) -> list[CheckingAccountOut]:
         statement = (
             select(CheckingAccount)
             .join(Account, col(CheckingAccount.account_id) == col(Account.id))
@@ -49,19 +50,19 @@ class CheckingAccountService:
             .limit(limit)
         )
         accounts = await self.session.exec(statement)
-        return list(accounts.all())
+        return [await self.__to_out(c) for c in accounts.all()]
 
-    async def read(self, account_id: int, client_id: int) -> CheckingAccount:
+    async def read(self, account_id: int, client_id: int) -> CheckingAccountOut:
         checking = await self.__get_by_id(account_id)
         await self.__verify_ownership(checking, client_id)
-        return checking
+        return await self.__to_out(checking)
 
     async def update(
         self,
         account_id: int,
         checking_account_in: CheckingAccountUpdateIn,
         client_id: int,
-    ) -> CheckingAccount:
+    ) -> CheckingAccountOut:
         checking = await self.__get_by_id(account_id)
         await self.__verify_ownership(checking, client_id)
 
@@ -85,13 +86,25 @@ class CheckingAccountService:
         self.session.add(checking)
         await self.session.commit()
         await self.session.refresh(checking)
-        return checking
+        return await self.__to_out(checking)
 
     async def delete(self, account_id: int, client_id: int) -> None:
         checking = await self.__get_by_id(account_id)
         await self.__verify_ownership(checking, client_id)
+        parent_account = await self.session.get(Account, checking.account_id)
         await self.session.delete(checking)
+        if parent_account:
+            await self.session.delete(parent_account)
         await self.session.commit()
+
+    async def __to_out(self, checking: CheckingAccount) -> CheckingAccountOut:
+        account = await self.session.get(Account, checking.account_id)
+        return CheckingAccountOut(
+            **checking.model_dump(),
+            balance=account.balance if account else None,
+            number=account.number if account else None,
+            branch=account.branch if account else None,
+        )
 
     async def __verify_ownership(
         self, checking: CheckingAccount, client_id: int

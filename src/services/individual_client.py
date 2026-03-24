@@ -83,8 +83,11 @@ class IndividualClientService:
         return individual
 
     async def delete(self, client_id: int) -> None:
-        client = await self.__get_by_id(client_id)
-        await self.session.delete(client)
+        individual = await self.__get_by_id(client_id)
+        parent_client = await self.session.get(Client, individual.client_id)
+        await self.session.delete(individual)
+        if parent_client:
+            await self.session.delete(parent_client)
         await self.session.commit()
 
     async def __get_by_id(self, client_id) -> IndividualClient:
