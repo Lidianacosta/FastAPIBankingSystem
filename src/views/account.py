@@ -9,3 +9,6 @@ class CheckingAccountOut(BaseModel):
     withdrawal_limit: int
     account_id: int
     created_at: datetime
+    balance: float | None = None
+    number: int | None = None
+    branch: str | None = None
