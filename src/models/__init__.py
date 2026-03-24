@@ -1,6 +1,7 @@
 from .account import Account, CheckingAccount
 from .client import Client, IndividualClient
 from .transaction import Transaction
+from .user import User
 
 __all__ = [
     "Account",
@@ -8,4 +9,5 @@ __all__ = [
     "Client",
     "IndividualClient",
     "Transaction",
+    "User",
 ]
