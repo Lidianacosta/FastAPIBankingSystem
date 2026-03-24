@@ -7,7 +7,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.core.config import settings
 
-if settings.environment == "production":
+if settings.environment != "production":
     connect_args = {"check_same_thread": False}
     echo = False
 else:

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlmodel import Field, MetaData, SQLModel
 
@@ -15,4 +15,6 @@ SQLModel.metadata = MetaData(naming_convention=naming_convention)
 
 class Base(SQLModel):
     id: int | None = Field(default=None, primary_key=True)
-    created_at: datetime = Field(default_factory=datetime.today)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )

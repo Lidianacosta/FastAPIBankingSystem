@@ -5,14 +5,8 @@ from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
 
+from src import models  # noqa
 from src.core.config import settings
-from src.models import (  # noqa
-    Account,
-    CheckingAccount,
-    Client,
-    IndividualClient,
-    Transaction,
-)
 
 config = context.config
 
