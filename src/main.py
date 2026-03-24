@@ -2,7 +2,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src.controllers import checking_account, individual_client, transactions
+from src.controllers import (
+    auth,
+    checking_account,
+    individual_client,
+    transactions,
+    user,
+)
 from src.utils.database import async_create_db_and_tables
 
 
@@ -15,6 +21,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
+app.include_router(auth.router, prefix="/api", tags=["Auth"])
+app.include_router(user.router, prefix="/api", tags=["Users"])
 app.include_router(
     individual_client.router,
     prefix="/api",

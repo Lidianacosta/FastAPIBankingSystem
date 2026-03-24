@@ -1,12 +1,16 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
 from src.schemas.client import IndividualClientIn, IndividualClientUpdateIn
 from src.services.individual_client import IndividualClientServiceDep
+from src.utils.security import get_current_active_user
 from src.views.client import IndividualClientOut
 
-router = APIRouter(prefix="/individual-clients")
+router = APIRouter(
+    prefix="/individual-clients",
+    dependencies=[Depends(get_current_active_user)],
+)
 
 
 @router.get("/", response_model=list[IndividualClientOut])

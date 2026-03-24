@@ -1,12 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
 from src.schemas.transaction import DepositIn
 from src.services.deposit import DepositServiceDep
+from src.utils.security import get_current_active_user
 from src.views.transaction import DepositOut
 
-router = APIRouter(prefix="/deposits")
+router = APIRouter(
+    prefix="/deposits", dependencies=[Depends(get_current_active_user)]
+)
 
 
 @router.get("/", response_model=list[DepositOut])

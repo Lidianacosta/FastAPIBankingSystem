@@ -1,12 +1,16 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
 from src.schemas.account import CheckingAccountIn, CheckingAccountUpdateIn
 from src.services.checking_account import CheckingAccountServiceDep
+from src.utils.security import get_current_active_user
 from src.views.account import CheckingAccountOut
 
-router = APIRouter(prefix="/checking-accounts")
+router = APIRouter(
+    prefix="/checking-accounts",
+    dependencies=[Depends(get_current_active_user)],
+)
 
 
 @router.get("/", response_model=list[CheckingAccountOut])

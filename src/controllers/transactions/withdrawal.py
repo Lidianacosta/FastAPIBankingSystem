@@ -1,12 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
 from src.schemas.transaction import WithdrawalIn
 from src.services.withdrawal import WithdrawalServiceDep
+from src.utils.security import get_current_active_user
 from src.views.transaction import WithdrawalOut
 
-router = APIRouter(prefix="/withdrawals")
+router = APIRouter(
+    prefix="/withdrawals", dependencies=[Depends(get_current_active_user)]
+)
 
 
 @router.get("/", response_model=list[WithdrawalOut])
