@@ -1,3 +1,9 @@
+"""Security operations and JWT management.
+
+Provides dependencies for authenticating users, generating access tokens,
+and extracting the current user from active requests.
+"""
+
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
@@ -18,6 +24,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 async def authenticate_user(
     username: str, password: str, user_service: UserServiceDep
 ):
+    """Authenticate a user using their username and password.
+
+    Args:
+        username: The attempted username.
+        password: The attempted plain text password.
+        user_service: Dependency providing user database operations.
+
+    Returns:
+        The User instance if authentication succeeds, False otherwise.
+    """
     user = await user_service.get_user_by_username(username)
     if not user:
         return False
@@ -26,7 +42,17 @@ async def authenticate_user(
     return user
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+    """Generate a JWT access token encoding the provided data.
+
+    Args:
+        data: A dict containing payload items (e.g., {"sub": username}).
+        expires_delta: Optional timedelta for token expiration. If none,
+            expires in 15 minutes.
+
+    Returns:
+        The encoded JWT string.
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -42,6 +68,21 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)], user_service: UserServiceDep
 ):
+    """Retrieve the current user from an incoming JWT token.
+
+    Validates token signature and expiration, extracts the username, and fetches
+    the corresponding user record from the database.
+
+    Args:
+        token: The bearer JWT token from the request authorization header.
+        user_service: Dependency providing user database operations.
+
+    Returns:
+        The current User model instance.
+
+    Raises:
+        HTTPException: 401 if credentials cannot be validated or user doesn't exist.
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -68,6 +109,19 @@ async def get_current_user(
 async def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)],
 ):
+    """Retrieve the current user ensuring their account is active.
+
+    Depends on `get_current_user` and adds an extra layer of validation.
+
+    Args:
+        current_user: The authenticated User object.
+
+    Returns:
+        The active User instance.
+
+    Raises:
+        HTTPException: 400 if the user account is disabled.
+    """
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user

@@ -1,3 +1,8 @@
+"""Authentication controller.
+
+Provides the OAuth2 endpoint for generating JWT access tokens.
+"""
+
 from datetime import timedelta
 from typing import Annotated
 
@@ -20,6 +25,22 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: UserServiceDep,
 ) -> Token:
+    """Authenticate a user and return a JWT access token.
+
+    Validates the provided username and password against the database.
+    If successful, generates a JWT token valid for the duration
+    specified in the application settings.
+
+    Args:
+        form_data: OAuth2 password request form containing username and password.
+        user_service: Dependency injected user service.
+
+    Returns:
+        A Token object containing the JWT string and token type.
+
+    Raises:
+        HTTPException: 401 Unauthorized if credentials are invalid.
+    """
     user = await authenticate_user(
         form_data.username, form_data.password, user_service
     )

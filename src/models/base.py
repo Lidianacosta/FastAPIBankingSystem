@@ -1,3 +1,9 @@
+"""Base model and database metadata configuration.
+
+This module defines the SQLAlchemy MetaData with naming conventions
+and the base SQLModel class from which all other models inherit.
+"""
+
 from datetime import datetime, timezone
 
 from sqlmodel import Field, MetaData, SQLModel
@@ -14,6 +20,16 @@ SQLModel.metadata = MetaData(naming_convention=naming_convention)
 
 
 class Base(SQLModel):
+    """Base SQLModel class for all database models.
+
+    Provides common underlying fields for all tables, such as primary
+    key and creation timestamp.
+
+    Attributes:
+        id: Primary key, auto-incremented integer. None before saving.
+        created_at: Timestamp of when the record was created. Defaults to current UTC time.
+    """
+
     id: int | None = Field(default=None, primary_key=True)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)

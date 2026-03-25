@@ -1,3 +1,8 @@
+"""Database utilities and sessions.
+
+Configures the SQLAlchemy async engine and dependency for database sessions.
+"""
+
 from typing import Annotated
 
 from fastapi import Depends
@@ -20,12 +25,22 @@ async_engine = create_async_engine(
 )
 
 
-async def async_create_db_and_tables():
+async def async_create_db_and_tables() -> None:
+    """Create all database tables defined by SQLModel metadata.
+
+    Executes a synchronization run using the asynchronous engine to build
+    tables based on the current models.
+    """
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
 
 async def get_async_session():
+    """Provide an asynchronous database session.
+
+    Yields:
+        AsyncSession: An asynchronous SQLModel session connected to the engine.
+    """
     async with AsyncSession(async_engine) as session:
         yield session
 

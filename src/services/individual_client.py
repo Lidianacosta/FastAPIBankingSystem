@@ -1,3 +1,9 @@
+"""Individual Client service layer.
+
+Provides business logic for creating and managing individual clients,
+safely handling the relationship between `Client` and `IndividualClient`.
+"""
+
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
@@ -10,10 +16,30 @@ from src.views.client import IndividualClientOut
 
 
 class IndividualClientService:
+    """Service class for Individual Client management.
+
+    Handles the dual-table creation/update operations necessary for
+    the `IndividualClient` and its parent `Client` record.
+
+    Attributes:
+        session: The asynchronous database session.
+    """
+
     def __init__(self, session: AsyncSessionDep) -> None:
         self.session = session
 
     async def create(self, client_in: IndividualClientIn) -> IndividualClient:
+        """Create a new individual client.
+
+        Creates the generic `Client` record first to obtain an ID,
+        then creates and associates the `IndividualClient` record.
+
+        Args:
+            client_in: The schema containing client details.
+
+        Returns:
+            The newly created IndividualClient database model.
+        """
         client = Client(address=client_in.address, type="individual")
         self.session.add(client)
         await self.session.flush([client])
@@ -30,6 +56,20 @@ class IndividualClientService:
         return individual_client
 
     async def read(self, client_id: int) -> IndividualClientOut:
+        """Retrieve an individual client by their ID.
+
+        Fetches both the specific individual client and its parent
+        client record to construct a full output representation.
+
+        Args:
+            client_id: The ID of the individual client to retrieve.
+
+        Returns:
+            A consolidated IndividualClientOut schema.
+
+        Raises:
+            HTTPException: 404 if the individual client is not found.
+        """
         individual = await self.__get_by_id(client_id)
         client = await self.session.get(Client, individual.client_id)
 
@@ -41,6 +81,18 @@ class IndividualClientService:
     async def read_all(
         self, offset: int = 0, limit: int = 100
     ) -> list[IndividualClientOut]:
+        """List all individual clients with pagination.
+
+        Gathers the base client address for each individual client to
+        provide complete output schemas.
+
+        Args:
+            offset: The number of records to skip.
+            limit: The maximum number of records to return.
+
+        Returns:
+            A list of IndividualClientOut schema instances.
+        """
         statement = select(IndividualClient).offset(offset).limit(limit)
         result = await self.session.exec(statement)
         individuals = result.all()
@@ -59,6 +111,21 @@ class IndividualClientService:
     async def update(
         self, client_id: int, client_in: IndividualClientUpdateIn
     ) -> IndividualClient:
+        """Update an existing individual client.
+
+        Updates both the `IndividualClient` specific fields and the base
+        `Client` fields (such as address) based on the provided schema.
+
+        Args:
+            client_id: The ID of the client to update.
+            client_in: Schema containing the fields to update.
+
+        Returns:
+            The updated IndividualClient database model.
+
+        Raises:
+            HTTPException: 404 if the client is not found.
+        """
         individual = await self.__get_by_id(client_id)
         data = client_in.model_dump(exclude_unset=True)
 
@@ -83,6 +150,14 @@ class IndividualClientService:
         return individual
 
     async def delete(self, client_id: int) -> None:
+        """Delete an individual client and its parent client record.
+
+        Args:
+            client_id: The ID of the individual client to delete.
+
+        Raises:
+            HTTPException: 404 if the client is not found.
+        """
         individual = await self.__get_by_id(client_id)
         parent_client = await self.session.get(Client, individual.client_id)
         await self.session.delete(individual)

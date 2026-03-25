@@ -1,8 +1,26 @@
+"""Application configuration module.
+
+Defines Pydantic settings used to configure the FastAPI application,
+including database URLs, environment contexts, and security keys.
+"""
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    """Application settings schema.
+
+    Loads values from the `.env` file first, falling back to defaults.
+
+    Attributes:
+        database_url: Connection string for the database.
+        environment: Current deployment context (e.g., 'production', 'development').
+        secret_key: Secret key used to sign JWT tokens.
+        algorithm: Algorithm used for JWT encoding/decoding.
+        access_token_expire_minutes: Expiration time for access tokens.
+    """
+
     database_url: str = Field(default="sqlite+aiosqlite:///db.sqlite")
 
     environment: str = Field(default="production")

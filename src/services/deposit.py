@@ -1,3 +1,9 @@
+"""Deposit transaction service layer.
+
+Provides business logic for processing and reversing deposit operations
+on checking accounts.
+"""
+
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
@@ -10,12 +16,36 @@ from src.utils.database import AsyncSessionDep
 
 
 class DepositService:
+    """Service class for Deposit management.
+
+    Handles creation, listing, retrieval, and deletion of deposit transactions,
+    automatically adjusting the base account balance.
+
+    Attributes:
+        session: The asynchronous database session.
+    """
+
     def __init__(self, session: AsyncSessionDep) -> None:
         self.session = session
 
     async def create(
         self, transaction_in: DepositIn, account_id: int
     ) -> Transaction:
+        """Process a new deposit transaction for an account.
+
+        Increments the parent `Account` balance by the transaction value
+        and records the `Transaction`.
+
+        Args:
+            transaction_in: Deposit schema containing the value.
+            account_id: ID of the checking account receiving the deposit.
+
+        Returns:
+            The recorded transaction instance.
+
+        Raises:
+            HTTPException: 404 if the account is not found.
+        """
         checking = await self.__get_checking_by_id(account_id)
 
         account = await self.session.get(Account, checking.account_id)
@@ -41,6 +71,16 @@ class DepositService:
         offset: int = 0,
         limit: int = 100,
     ) -> list[Transaction]:
+        """List all deposit transactions associated with an account.
+
+        Args:
+            account_id: The ID of the checking account.
+            offset: The number of records to skip.
+            limit: The maximum number of records to return.
+
+        Returns:
+            A list of deposit transaction model instances.
+        """
         checking = await self.__get_checking_by_id(account_id)
         statement = (
             select(Transaction)
@@ -53,11 +93,37 @@ class DepositService:
         return list(transactions.all())
 
     async def read(self, transaction_id: int, account_id: int) -> Transaction:
+        """Retrieve a specific deposit transaction by ID.
+
+        Enforces that the transaction matches the requested account.
+
+        Args:
+            transaction_id: The ID of the deposit transaction.
+            account_id: The ID of the checking account for ownership validation.
+
+        Returns:
+            The deposit transaction instance.
+
+        Raises:
+            HTTPException: 404 if not found, 403 if ownership validation fails.
+        """
         transaction = await self.__get_by_id(transaction_id)
         await self.__verify_ownership(transaction, account_id)
         return transaction
 
     async def delete(self, transaction_id: int, account_id: int) -> None:
+        """Delete a deposit transaction and revert its balance impact.
+
+        Decreases the balance on the underlying parent account by the
+        deposited value before safely removing the transaction record.
+
+        Args:
+            transaction_id: The ID of the deposit transaction to delete.
+            account_id: The ID of the associated checking account.
+
+        Raises:
+            HTTPException: 404 if not found, 403 if ownership validation fails.
+        """
         transaction = await self.__get_by_id(transaction_id)
         await self.__verify_ownership(transaction, account_id)
         checking = await self.__get_checking_by_id(account_id)

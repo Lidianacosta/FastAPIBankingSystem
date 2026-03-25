@@ -1,3 +1,9 @@
+"""Withdrawal transaction service layer.
+
+Provides business logic for processing and reversing withdrawal operations,
+validating account limits, bounds, and sufficient balances.
+"""
+
 from datetime import datetime, timedelta
 from typing import Annotated
 
@@ -11,12 +17,39 @@ from src.utils.database import AsyncSessionDep
 
 
 class WithdrawalService:
+    """Service class for Withdrawal management.
+
+    Handles creation, listing, retrieval, and deletion of withdrawal
+    transactions. Validates business rules, such as overdraft limits
+    and daily withdrawal count limits, adjusting balances upon success.
+
+    Attributes:
+        session: The asynchronous database session.
+    """
+
     def __init__(self, session: AsyncSessionDep) -> None:
         self.session = session
 
     async def create(
         self, transaction_in: WithdrawalIn, account_id: int
     ) -> Transaction:
+        """Process a new withdrawal transaction for an account.
+
+        Ensures the withdrawal does not exceed available balance (plus limits)
+        and respects the daily transaction limit for withdrawals. Decreases
+        the parent `Account` balance upon successful validation.
+
+        Args:
+            transaction_in: Withdrawal schema containing the value.
+            account_id: ID of the checking account from which to withdraw.
+
+        Returns:
+            The recorded transaction instance.
+
+        Raises:
+            HTTPException: 404 if account not found.
+            HTTPException: 400 if insufficient funds or limits reached.
+        """
         checking = await self.__get_checking_by_id(account_id)
 
         account = await self.session.get(Account, checking.account_id)
@@ -76,6 +109,16 @@ class WithdrawalService:
         offset: int = 0,
         limit: int = 100,
     ) -> list[Transaction]:
+        """List all withdrawal transactions associated with an account.
+
+        Args:
+            account_id: The ID of the checking account.
+            offset: The number of records to skip.
+            limit: The maximum number of records to return.
+
+        Returns:
+            A list of withdrawal transaction model instances.
+        """
         checking = await self.__get_checking_by_id(account_id)
         statement = (
             select(Transaction)
@@ -88,11 +131,37 @@ class WithdrawalService:
         return list(transactions.all())
 
     async def read(self, transaction_id: int, account_id: int) -> Transaction:
+        """Retrieve a specific withdrawal transaction by ID.
+
+        Enforces that the transaction matches the requested account.
+
+        Args:
+            transaction_id: The ID of the withdrawal transaction.
+            account_id: The ID of the checking account for ownership validation.
+
+        Returns:
+            The withdrawal transaction instance.
+
+        Raises:
+            HTTPException: 404 if not found, 403 if ownership validation fails.
+        """
         transaction = await self.__get_by_id(transaction_id)
         await self.__verify_ownership(transaction, account_id)
         return transaction
 
     async def delete(self, transaction_id: int, account_id: int) -> None:
+        """Delete a withdrawal transaction and revert its balance impact.
+
+        Restores the deducted balance to the underlying parent account
+        before safely removing the transaction record.
+
+        Args:
+            transaction_id: The ID of the withdrawal transaction to delete.
+            account_id: The ID of the associated checking account.
+
+        Raises:
+            HTTPException: 404 if not found, 403 if ownership validation fails.
+        """
         transaction = await self.__get_by_id(transaction_id)
         await self.__verify_ownership(transaction, account_id)
         checking = await self.__get_checking_by_id(account_id)
