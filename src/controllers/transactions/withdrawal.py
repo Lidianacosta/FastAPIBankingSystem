@@ -66,10 +66,10 @@ async def create_withdrawal(
     return await withdrawal_service.create(withdrawal, account_id)
 
 
-@router.get("/{transaction_id}", response_model=WithdrawalOut)
+@router.get("/{withdrawal_id}", response_model=WithdrawalOut)
 async def read_withdrawal(
     account_id: int,
-    transaction_id: int,
+    withdrawal_id: int,
     withdrawal_service: WithdrawalServiceDep,
 ):
     """Retrieve details of a specific withdrawal transaction.
@@ -78,7 +78,7 @@ async def read_withdrawal(
 
     Args:
         account_id: The ID of the account.
-        transaction_id: The ID of the withdrawal transaction.
+        withdrawal_id: The ID of the withdrawal transaction.
         withdrawal_service: Dependency injected service.
 
     Returns:
@@ -87,13 +87,13 @@ async def read_withdrawal(
     Raises:
         HTTPException: 404 if not found or does not belong to the account.
     """
-    return await withdrawal_service.read(transaction_id, account_id)
+    return await withdrawal_service.read(withdrawal_id, account_id)
 
 
-@router.delete("/{transaction_id}", response_model=None)
+@router.delete("/{withdrawal_id}", response_model=None)
 async def delete_withdrawal(
     account_id: int,
-    transaction_id: int,
+    withdrawal_id: int,
     withdrawal_service: WithdrawalServiceDep,
 ):
     """Delete a specific withdrawal transaction.
@@ -102,7 +102,7 @@ async def delete_withdrawal(
 
     Args:
         account_id: The ID of the account.
-        transaction_id: The ID of the withdrawal transaction to delete.
+        withdrawal_id: The ID of the withdrawal transaction to delete.
         withdrawal_service: Dependency injected service.
 
     Returns:
@@ -111,4 +111,4 @@ async def delete_withdrawal(
     Raises:
         HTTPException: 404 if not found or does not belong to the account.
     """
-    return await withdrawal_service.delete(transaction_id, account_id)
+    return await withdrawal_service.delete(withdrawal_id, account_id)

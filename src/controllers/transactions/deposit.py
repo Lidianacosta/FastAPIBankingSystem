@@ -65,10 +65,10 @@ async def create_deposit(
     return await deposit_service.create(deposit, account_id)
 
 
-@router.get("/{transaction_id}", response_model=DepositOut)
+@router.get("/{deposit_id}", response_model=DepositOut)
 async def read_deposit(
     account_id: int,
-    transaction_id: int,
+    deposit_id: int,
     deposit_service: DepositServiceDep,
 ):
     """Retrieve details of a specific deposit transaction.
@@ -77,7 +77,7 @@ async def read_deposit(
 
     Args:
         account_id: The ID of the account.
-        transaction_id: The ID of the deposit transaction.
+        deposit_id: The ID of the deposit transaction.
         deposit_service: Dependency injected service.
 
     Returns:
@@ -86,13 +86,13 @@ async def read_deposit(
     Raises:
         HTTPException: 404 if not found or does not belong to the account.
     """
-    return await deposit_service.read(transaction_id, account_id)
+    return await deposit_service.read(deposit_id, account_id)
 
 
-@router.delete("/{transaction_id}", response_model=None)
+@router.delete("/{deposit_id}", response_model=None)
 async def delete_deposit(
     account_id: int,
-    transaction_id: int,
+    deposit_id: int,
     deposit_service: DepositServiceDep,
 ):
     """Delete a specific deposit transaction.
@@ -101,7 +101,7 @@ async def delete_deposit(
 
     Args:
         account_id: The ID of the account.
-        transaction_id: The ID of the deposit transaction to delete.
+        deposit_id: The ID of the deposit transaction to delete.
         deposit_service: Dependency injected service.
 
     Returns:
@@ -110,4 +110,4 @@ async def delete_deposit(
     Raises:
         HTTPException: 404 if not found or does not belong to the account.
     """
-    return await deposit_service.delete(transaction_id, account_id)
+    return await deposit_service.delete(deposit_id, account_id)
