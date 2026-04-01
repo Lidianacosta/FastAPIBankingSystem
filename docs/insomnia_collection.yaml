@@ -1,0 +1,2387 @@
+type: spec.insomnia.rest/5.0
+schema_version: "5.1"
+name: FastAPI 0.1.0
+meta:
+  id: wrk_b1ca2a787ba843aca58523d384b45351
+  created: 1774551410133
+  modified: 1774551410133
+  description: ""
+collection:
+  - name: Auth
+    meta:
+      id: fld_2186064692034a3881200c2098acb210
+      created: 1774551410137
+      modified: 1774551410137
+      sortKey: -1774551410137
+      description: Authentication
+    children:
+      - url: "{{ _.base_url }}/api/auth/token"
+        name: Login For Access Token
+        meta:
+          id: req_77624977dfa241da8149eb5f761c4da6
+          created: 1774551410143
+          modified: 1775065077833
+          isPrivate: false
+          description: >-
+            Authenticate a user and return a JWT access token.
+
+
+            Validates the provided username and password against the database.
+
+            If successful, generates a JWT token valid for the duration
+
+            specified in the application settings.
+
+
+            Args:
+                form_data: OAuth2 password request form containing username and password.
+                user_service: Dependency injected user service.
+
+            Returns:
+                A Token object containing the JWT string and token type.
+
+            Raises:
+                HTTPException: 401 Unauthorized if credentials are invalid.
+          sortKey: -1774551410143
+        method: POST
+        body:
+          mimeType: application/x-www-form-urlencoded
+          params:
+            - name: username
+              value: "{{ _.oauth2Username }}"
+              description: ""
+              disabled: false
+            - name: password
+              value: "{{ _.oauth2Password }}"
+              description: ""
+              disabled: false
+        headers:
+          - name: Content-Type
+            value: application/x-www-form-urlencoded
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Users
+    meta:
+      id: fld_0ad4ac7df64b44fd824644892d2a5808
+      created: 1774551410140
+      modified: 1775065097934
+      sortKey: -1774551410140
+      description: User management
+    children:
+      - url: "{{ _.base_url }}/api/users/me/"
+        name: Update User Me
+        meta:
+          id: req_18d56e34b15f4b50aa105b0fea3f6e2a
+          created: 1774551410144
+          modified: 1774879866000
+          isPrivate: false
+          description: |-
+            Update the profile of the currently authenticated user.
+
+            Allows updating email, full name, active status, or password.
+            Fields left as null or omitted will not be modified.
+
+            Args:
+                user_update_in: Payload containing the fields to update.
+                current_user: The user decoded from the JWT token (with DB ID).
+                user_service: Dependency injected user service.
+
+            Returns:
+                The updated user profile.
+          sortKey: -1774551410144
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "lidianacostasouza@gmail.com",
+              "full_name": "Lidiana Costa de Souza",
+              "disabled": false,
+              "plain_password": "lidiana"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/users/me/"
+        name: Read User Me
+        meta:
+          id: req_d963403d6a424762be6e2243e8752b67
+          created: 1774551410144
+          modified: 1774553493444
+          isPrivate: false
+          description: |-
+            Get the profile of the currently authenticated user.
+
+            Args:
+                current_user: The user decoded from the JWT token.
+
+            Returns:
+                The current user's profile information.
+          sortKey: -1774551410144
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    authentication:
+      type: bearer
+      token: "{% response 'body', 'req_77624977dfa241da8149eb5f761c4da6',
+        'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+  - name: Checking
+    meta:
+      id: fld_ba3331f4dcd546619b413424791b9931
+      created: 1774551410141
+      modified: 1775065441756
+      sortKey: -1774551410141
+      description: Checking accounts
+    children:
+      - url: "{{ _.base_url }}/api/individual-clients/{{ _.client_id
+          }}/checking-accounts/"
+        name: Read Checking Accounts
+        meta:
+          id: req_f4dbdfeeab7d41c088dfbfa8f3ebe69b
+          created: 1774551410149
+          modified: 1775065319972
+          isPrivate: false
+          description: |-
+            List all checking accounts for a specific client.
+
+            Args:
+                client_id: The ID of the client whose accounts to retrieve.
+                checking_account_service: Dependency injected service.
+                offset: Pagination offset.
+                limit: Maximum number of records to return (max 100).
+
+            Returns:
+                A list of checking accounts.
+          sortKey: -1774551410149
+        method: GET
+        parameters:
+          - name: offset
+            value: "0"
+            disabled: true
+          - name: limit
+            value: "100"
+            disabled: true
+        scripts:
+          afterResponse: |-
+            const json = JSON.parse(insomnia.response.body)
+
+            if (json.length > 0) {
+                insomnia.environment.set("account_id", json[0].id)
+            }
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/individual-clients/{{ _.client_id
+          }}/checking-accounts/{{ _.account_id }}"
+        name: Read Checking Account
+        meta:
+          id: req_69e8edb7c6e2456c9262cd0b087624cf
+          created: 1774551410150
+          modified: 1775065363011
+          isPrivate: false
+          description: >-
+            Retrieve details of a specific checking account.
+
+
+            Ensures the account belongs to the specified client.
+
+
+            Args:
+                client_id: The ID of the client.
+                account_id: The ID of the checking account to retrieve.
+                checking_account_service: Dependency injected service.
+
+            Returns:
+                The requested checking account.
+
+            Raises:
+                HTTPException: 404 if the account is not found or does not belong to the client.
+          sortKey: -1774551410150
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/individual-clients/{{ _.client_id
+          }}/checking-accounts/"
+        name: Create Checking Account
+        meta:
+          id: req_beca5dc88bf74e75a258a53dbad702b8
+          created: 1774551410150
+          modified: 1775065424753
+          isPrivate: false
+          description: |-
+            Create a new checking account for a specific client.
+
+            Args:
+                client_id: The ID of the client opening the account.
+                account_in: Payload containing checking account details.
+                checking_account_service: Dependency injected service.
+
+            Returns:
+                The newly created checking account.
+
+            Raises:
+                HTTPException: 404 if the client does not exist.
+          sortKey: -1774551410150
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "balance": 100,
+              "number": 1,
+              "branch": "central",
+              "limit": 10000,
+              "withdrawal_limit": 5000
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/individual-clients/{{ _.client_id
+          }}/checking-accounts/{{ _.account_id }}"
+        name: Update Checking Account
+        meta:
+          id: req_9ed652f3050d498ca0a2955da5576006
+          created: 1774551410151
+          modified: 1774879884907
+          isPrivate: false
+          description: >-
+            Update a specific checking account partially.
+
+
+            Args:
+                client_id: The ID of the client.
+                account_id: The ID of the checking account to update.
+                account_in: Payload with the fields to update.
+                checking_account_service: Dependency injected service.
+
+            Returns:
+                The updated checking account.
+
+            Raises:
+                HTTPException: 404 if the account is not found or does not belong to the client.
+          sortKey: -1774551410151
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "balance": 0,
+              "number": 0,
+              "branch": "string",
+              "limit": 0,
+              "withdrawal_limit": 0
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/individual-clients/{{ _.client_id
+          }}/checking-accounts/{{ _.account_id }}"
+        name: Delete Checking Account
+        meta:
+          id: req_158c5d3a0aa44b50bd1f51ecc0b3b000
+          created: 1774551410162
+          modified: 1774879879619
+          isPrivate: false
+          description: >-
+            Delete a specific checking account.
+
+
+            This operation also deletes the underlying base account
+            representation.
+
+
+            Args:
+                client_id: The ID of the client.
+                account_id: The ID of the checking account to delete.
+                checking_account_service: Dependency injected service.
+
+            Returns:
+                None (200 OK) if successful.
+
+            Raises:
+                HTTPException: 404 if the account is not found or does not belong to the client.
+          sortKey: -1774551410162
+        method: DELETE
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    authentication:
+      type: bearer
+      token: "{% response 'body', 'req_77624977dfa241da8149eb5f761c4da6',
+        'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+  - name: Individual
+    meta:
+      id: fld_cfcc964a18084a94ad9c0dfae9e2ea9d
+      created: 1774551410141
+      modified: 1775065150770
+      sortKey: -1774551410141
+      description: Individual clients
+    children:
+      - url: "{{ _.base_url }}/api/individual-clients/"
+        name: Create Individual Client
+        meta:
+          id: req_8313f5e4f1994e8eb2cb9d9be4989801
+          created: 1774551410145
+          modified: 1774880427014
+          isPrivate: false
+          description: >-
+            Create a new individual client.
+
+
+            This operation also creates the underlying base client
+            representation.
+
+
+            Args:
+                individual_client: Payload containing individual client details.
+                individual_client_service: Dependency injected service.
+
+            Returns:
+                The newly created individual client.
+          sortKey: -1774551410145
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "address": "Individual client",
+              "name": "Individual client",
+              "cpf": "111.111.111-11",
+              "date_of_birth": "2001-01-01"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/individual-clients/"
+        name: Read Individual Clients
+        meta:
+          id: req_d58c571301ca48509e73a0bcee066d1a
+          created: 1774551410145
+          modified: 1774882053333
+          isPrivate: false
+          description: |-
+            List all individual clients.
+
+            Args:
+                individual_client_service: Dependency injected service.
+                offset: Pagination offset.
+                limit: Maximum number of records to return (max 100).
+
+            Returns:
+                A list of individual clients.
+          sortKey: -1774551410145
+        method: GET
+        parameters:
+          - name: offset
+            value: "0"
+            disabled: true
+          - name: limit
+            value: "100"
+            disabled: true
+        scripts:
+          afterResponse: |-
+            const json = JSON.parse(insomnia.response.body)
+
+            if (json.length > 0) {
+                insomnia.environment.set("client_id", json[0].id)
+            }
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/individual-clients/{{ _.client_id }}/"
+        name: Read Individual Client
+        meta:
+          id: req_56134d5d1b7b4076971b7875f7175320
+          created: 1774551410146
+          modified: 1775065180486
+          isPrivate: false
+          description: |-
+            Retrieve details of a specific individual client.
+
+            Args:
+                client_id: The ID of the client to retrieve.
+                individual_client_service: Dependency injected service.
+
+            Returns:
+                The requested individual client.
+
+            Raises:
+                HTTPException: 404 if the client is not found.
+          sortKey: -1774551410146
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/individual-clients/{{ _.client_id }}"
+        name: Update Individual Client
+        meta:
+          id: req_31c6489d4bee4fe08b7a95d810e9d14f
+          created: 1774551410147
+          modified: 1774551410147
+          isPrivate: false
+          description: |-
+            Update a specific individual client partially.
+
+            Args:
+                client_id: The ID of the client to update.
+                individual_client: Payload with the fields to update.
+                individual_client_service: Dependency injected service.
+
+            Returns:
+                The updated individual client.
+
+            Raises:
+                HTTPException: 404 if the client is not found.
+          sortKey: -1774551410147
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "address": "string",
+              "name": "string",
+              "cpf": "string",
+              "date_of_birth": "string"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            disabled: false
+        authentication:
+          type: oauth2
+          grantType: password
+          accessTokenUrl: auth/token
+          clientId: "{{ _.oauth2ClientId }}"
+          clientSecret: "{{ _.oauth2ClientSecret }}"
+          scope: ""
+          username: "{{ _.oauth2Username }}"
+          password: "{{ _.oauth2Password }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/individual-clients/{{ _.client_id }}"
+        name: Delete Individual Client
+        meta:
+          id: req_956f6661781e4d01af58e31f6b49e57e
+          created: 1774551410147
+          modified: 1775065247644
+          isPrivate: false
+          description: >-
+            Delete a specific individual client.
+
+
+            This operation also deletes the underlying base client
+            representation.
+
+
+            Args:
+                client_id: The ID of the client to delete.
+                individual_client_service: Dependency injected service.
+
+            Returns:
+                None (200 OK) if successful.
+
+            Raises:
+                HTTPException: 404 if the client is not found.
+          sortKey: -1774551410147
+        method: DELETE
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    authentication:
+      type: bearer
+      token: "{% response 'body', 'req_77624977dfa241da8149eb5f761c4da6',
+        'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+  - name: Deposit
+    meta:
+      id: fld_5da7b1de7d9545eea4da5f29e62f6250
+      created: 1774551410142
+      modified: 1775065723021
+      sortKey: -1774551410142
+      description: Deposits
+    children:
+      - url: "{{ _.base_url }}/api/checking-accounts/{{ _.account_id }}/deposits/"
+        name: Read Deposits
+        meta:
+          id: req_f4f6431240ab4d9eb17d613df973d6c4
+          created: 1774551410163
+          modified: 1775065693526
+          isPrivate: false
+          description: |-
+            List all deposit transactions for a specific account.
+
+            Args:
+                account_id: The ID of the account.
+                deposit_service: Dependency injected service.
+                offset: Pagination offset.
+                limit: Maximum number of records to return.
+
+            Returns:
+                A list of deposit transactions.
+          sortKey: -1774551410163
+        method: GET
+        parameters:
+          - name: offset
+            value: "0"
+            disabled: true
+          - name: limit
+            value: "100"
+            disabled: true
+        scripts:
+          afterResponse: |-
+            const json = JSON.parse(insomnia.response.body)
+
+            if (json.length > 0) {
+                insomnia.environment.set("deposit_id", json[0].id)
+            }
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/checking-accounts/{{ _.account_id }}/deposits/"
+        name: Create Deposit
+        meta:
+          id: req_e1ba2941246a4f57a88cafd5827b351c
+          created: 1774551410164
+          modified: 1775065706266
+          isPrivate: false
+          description: |-
+            Create a new deposit transaction for an account.
+
+            Increases the account balance by the specified deposit value.
+
+            Args:
+                account_id: The ID of the account receiving the deposit.
+                deposit: Payload containing the deposit value.
+                deposit_service: Dependency injected service.
+
+            Returns:
+                The registered deposit transaction.
+
+            Raises:
+                HTTPException: 404 if the account is not found.
+          sortKey: -1774551410164
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "value": 100
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/checking-accounts/{{ _.account_id }}/deposits/{{
+          _.deposit_id }}"
+        name: Read Deposit
+        meta:
+          id: req_0323121bcc8642818377bce56c8ad227
+          created: 1774551410165
+          modified: 1775065765545
+          isPrivate: false
+          description: >-
+            Retrieve details of a specific deposit transaction.
+
+
+            Enforces that the transaction belongs to the specified account.
+
+
+            Args:
+                account_id: The ID of the account.
+                transaction_id: The ID of the deposit transaction.
+                deposit_service: Dependency injected service.
+
+            Returns:
+                The requested deposit transaction.
+
+            Raises:
+                HTTPException: 404 if not found or does not belong to the account.
+          sortKey: -1774551410165
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/checking-accounts/{{ _.account_id }}/deposits/{{
+          _.deposit_id }}"
+        name: Delete Deposit
+        meta:
+          id: req_bf3469478c324c079a9f54314e8997bb
+          created: 1774551410166
+          modified: 1775065772274
+          isPrivate: false
+          description: >-
+            Delete a specific deposit transaction.
+
+
+            Decreases the account balance, reverting the original deposit.
+
+
+            Args:
+                account_id: The ID of the account.
+                transaction_id: The ID of the deposit transaction to delete.
+                deposit_service: Dependency injected service.
+
+            Returns:
+                None (200 OK) if successful.
+
+            Raises:
+                HTTPException: 404 if not found or does not belong to the account.
+          sortKey: -1774551410166
+        method: DELETE
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    authentication:
+      type: bearer
+      token: "{% response 'body', 'req_77624977dfa241da8149eb5f761c4da6',
+        'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+  - name: Withdrawal
+    meta:
+      id: fld_698a90e726a64811893e8ceb28f624b7
+      created: 1774551410142
+      modified: 1775065594572
+      sortKey: -1774551410142
+      description: Withdrawals
+    children:
+      - url: "{{ _.base_url }}/api/checking-accounts/{{ _.account_id }}/withdrawals/"
+        name: Read Withdrawals
+        meta:
+          id: req_6e491be187ef4c3bb89da759ac586746
+          created: 1774551410167
+          modified: 1775065593160
+          isPrivate: false
+          description: |-
+            List all withdrawal transactions for a specific account.
+
+            Args:
+                account_id: The ID of the account.
+                withdrawal_service: Dependency injected service.
+                offset: Pagination offset.
+                limit: Maximum number of records to return.
+
+            Returns:
+                A list of withdrawal transactions.
+          sortKey: -1774551410167
+        method: GET
+        parameters:
+          - name: offset
+            value: "0"
+            disabled: true
+          - name: limit
+            value: "100"
+            disabled: true
+        scripts:
+          afterResponse: |-
+            const json = JSON.parse(insomnia.response.body)
+
+            if (json.length > 0) {
+                insomnia.environment.set("withdrawal_id", json[0].id)
+            }
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/checking-accounts/{{ _.account_id }}/withdrawals/{{
+          _.withdrawal_id }}"
+        name: Delete Withdrawal
+        meta:
+          id: req_7ec7c3636b8e4ed3b36124a3da161e68
+          created: 1774551410168
+          modified: 1775065517757
+          isPrivate: false
+          description: >-
+            Delete a specific withdrawal transaction.
+
+
+            Increases the account balance, reverting the original withdrawal.
+
+
+            Args:
+                account_id: The ID of the account.
+                transaction_id: The ID of the withdrawal transaction to delete.
+                withdrawal_service: Dependency injected service.
+
+            Returns:
+                None (200 OK) if successful.
+
+            Raises:
+                HTTPException: 404 if not found or does not belong to the account.
+          sortKey: -1774551410168
+        method: DELETE
+        authentication:
+          type: oauth2
+          grantType: password
+          accessTokenUrl: auth/token
+          clientId: "{{ _.oauth2ClientId }}"
+          clientSecret: "{{ _.oauth2ClientSecret }}"
+          scope: ""
+          username: "{{ _.oauth2Username }}"
+          password: "{{ _.oauth2Password }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/checking-accounts/{{ _.account_id }}/withdrawals/"
+        name: Create Withdrawal
+        meta:
+          id: req_ad25de01580744faa5287a52763acd46
+          created: 1774551410168
+          modified: 1775065578071
+          isPrivate: false
+          description: >-
+            Create a new withdrawal transaction for an account.
+
+
+            Decreases the account balance by the specified withdrawal value.
+
+            Enforces business rules such as balance limits and withdrawal count.
+
+
+            Args:
+                account_id: The ID of the account making the withdrawal.
+                withdrawal: Payload containing the withdrawal value.
+                withdrawal_service: Dependency injected service.
+
+            Returns:
+                The registered withdrawal transaction.
+
+            Raises:
+                HTTPException: 404 if account not found, or 400 for business rule failures.
+          sortKey: -1774551410168
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "value": 100
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/checking-accounts/{{ _.account_id }}/withdrawals/{{
+          _.withdrawal_id }}"
+        name: Read Withdrawal
+        meta:
+          id: req_ce20746ce53142e1acb6136d10046bff
+          created: 1774551410168
+          modified: 1775065619076
+          isPrivate: false
+          description: >-
+            Retrieve details of a specific withdrawal transaction.
+
+
+            Enforces that the transaction belongs to the specified account.
+
+
+            Args:
+                account_id: The ID of the account.
+                transaction_id: The ID of the withdrawal transaction.
+                withdrawal_service: Dependency injected service.
+
+            Returns:
+                The requested withdrawal transaction.
+
+            Raises:
+                HTTPException: 404 if not found or does not belong to the account.
+          sortKey: -1774551410168
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    authentication:
+      type: bearer
+      token: "{% response 'body', 'req_77624977dfa241da8149eb5f761c4da6',
+        'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_418f9f9fd53149a59752580acf88a8942d2a69e5
+    created: 1774551410344
+    modified: 1775065723018
+environments:
+  name: Base environment
+  meta:
+    id: env_537067c342f84ecc9a7767331cea0b3c
+    created: 1774551410136
+    modified: 1775065723021
+    isPrivate: false
+  data:
+    base_url: "{{ _.scheme }}://{{ _.host }}{{ _.base_path }}"
+  subEnvironments:
+    - name: OpenAPI env example.com
+      meta:
+        id: env_d1b55a7512f4491bbf76ffe3efa58c50
+        created: 1774551410136
+        modified: 1775065723020
+        isPrivate: false
+        sortKey: 1774551410136
+      data:
+        scheme: http
+        base_path: ""
+        host: 127.0.0.1:8000
+        oauth2ClientId: clientId
+        oauth2ClientSecret: clientSecret
+        oauth2Username: lidiana
+        oauth2Password: lidiana
+        client_id: 1
+        account_id: 1
+        withdrawal_id: 1
+        deposit_id: 2
+spec:
+  contents:
+    openapi: 3.1.0
+    info:
+      title: FastAPI
+      version: 0.1.0
+    paths:
+      /api/auth/token:
+        post:
+          tags:
+            - Auth
+          summary: Login For Access Token
+          description: >-
+            Authenticate a user and return a JWT access token.
+
+
+            Validates the provided username and password against the database.
+
+            If successful, generates a JWT token valid for the duration
+
+            specified in the application settings.
+
+
+            Args:
+                form_data: OAuth2 password request form containing username and password.
+                user_service: Dependency injected user service.
+
+            Returns:
+                A Token object containing the JWT string and token type.
+
+            Raises:
+                HTTPException: 401 Unauthorized if credentials are invalid.
+          operationId: login_for_access_token_api_auth_token_post
+          requestBody:
+            content:
+              application/x-www-form-urlencoded:
+                schema:
+                  $ref: "#/components/schemas/Body_login_for_access_token_api_auth_token_post"
+            required: true
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Token"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+      /api/users/me/:
+        get:
+          tags:
+            - Users
+          summary: Read User Me
+          description: |-
+            Get the profile of the currently authenticated user.
+
+            Args:
+                current_user: The user decoded from the JWT token.
+
+            Returns:
+                The current user's profile information.
+          operationId: read_user_me_api_users_me__get
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/User"
+        patch:
+          tags:
+            - Users
+          summary: Update User Me
+          description: |-
+            Update the profile of the currently authenticated user.
+
+            Allows updating email, full name, active status, or password.
+            Fields left as null or omitted will not be modified.
+
+            Args:
+                user_update_in: Payload containing the fields to update.
+                current_user: The user decoded from the JWT token (with DB ID).
+                user_service: Dependency injected user service.
+
+            Returns:
+                The updated user profile.
+          operationId: update_user_me_api_users_me__patch
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/UserUpdateIn"
+            required: true
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/User"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+      /api/individual-clients/:
+        get:
+          tags:
+            - Individual
+          summary: Read Individual Clients
+          description: |-
+            List all individual clients.
+
+            Args:
+                individual_client_service: Dependency injected service.
+                offset: Pagination offset.
+                limit: Maximum number of records to return (max 100).
+
+            Returns:
+                A list of individual clients.
+          operationId: read_individual_clients_api_individual_clients__get
+          parameters:
+            - name: offset
+              in: query
+              required: false
+              schema:
+                type: integer
+                default: 0
+                title: Offset
+            - name: limit
+              in: query
+              required: false
+              schema:
+                type: integer
+                maximum: 100
+                default: 100
+                title: Limit
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/IndividualClientOut"
+                    title: Response Read Individual Clients Api Individual Clients  Get
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+        post:
+          tags:
+            - Individual
+          summary: Create Individual Client
+          description: >-
+            Create a new individual client.
+
+
+            This operation also creates the underlying base client
+            representation.
+
+
+            Args:
+                individual_client: Payload containing individual client details.
+                individual_client_service: Dependency injected service.
+
+            Returns:
+                The newly created individual client.
+          operationId: create_individual_client_api_individual_clients__post
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/IndividualClientIn"
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/IndividualClientOut"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+      /api/individual-clients/{client_id}:
+        get:
+          tags:
+            - Individual
+          summary: Read Individual Client
+          description: |-
+            Retrieve details of a specific individual client.
+
+            Args:
+                client_id: The ID of the client to retrieve.
+                individual_client_service: Dependency injected service.
+
+            Returns:
+                The requested individual client.
+
+            Raises:
+                HTTPException: 404 if the client is not found.
+          operationId: read_individual_client_api_individual_clients__client_id__get
+          parameters:
+            - name: client_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Client Id
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/IndividualClientOut"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+        patch:
+          tags:
+            - Individual
+          summary: Update Individual Client
+          description: |-
+            Update a specific individual client partially.
+
+            Args:
+                client_id: The ID of the client to update.
+                individual_client: Payload with the fields to update.
+                individual_client_service: Dependency injected service.
+
+            Returns:
+                The updated individual client.
+
+            Raises:
+                HTTPException: 404 if the client is not found.
+          operationId: update_individual_client_api_individual_clients__client_id__patch
+          parameters:
+            - name: client_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Client Id
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/IndividualClientUpdateIn"
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/IndividualClientOut"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+        delete:
+          tags:
+            - Individual
+          summary: Delete Individual Client
+          description: >-
+            Delete a specific individual client.
+
+
+            This operation also deletes the underlying base client
+            representation.
+
+
+            Args:
+                client_id: The ID of the client to delete.
+                individual_client_service: Dependency injected service.
+
+            Returns:
+                None (200 OK) if successful.
+
+            Raises:
+                HTTPException: 404 if the client is not found.
+          operationId: delete_individual_client_api_individual_clients__client_id__delete
+          parameters:
+            - name: client_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Client Id
+          responses:
+            "200":
+              description: Successful Response
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+      /api/individual-clients/{client_id}/checking-accounts/:
+        get:
+          tags:
+            - Checking
+          summary: Read Checking Accounts
+          description: |-
+            List all checking accounts for a specific client.
+
+            Args:
+                client_id: The ID of the client whose accounts to retrieve.
+                checking_account_service: Dependency injected service.
+                offset: Pagination offset.
+                limit: Maximum number of records to return (max 100).
+
+            Returns:
+                A list of checking accounts.
+          operationId: read_checking_accounts_api_individual_clients__client_id__checking_accounts__get
+          parameters:
+            - name: client_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Client Id
+            - name: offset
+              in: query
+              required: false
+              schema:
+                type: integer
+                default: 0
+                title: Offset
+            - name: limit
+              in: query
+              required: false
+              schema:
+                type: integer
+                maximum: 100
+                default: 100
+                title: Limit
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CheckingAccountOut"
+                    title: Response Read Checking Accounts Api Individual Clients  Client
+                      Id  Checking Accounts  Get
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+        post:
+          tags:
+            - Checking
+          summary: Create Checking Account
+          description: |-
+            Create a new checking account for a specific client.
+
+            Args:
+                client_id: The ID of the client opening the account.
+                account_in: Payload containing checking account details.
+                checking_account_service: Dependency injected service.
+
+            Returns:
+                The newly created checking account.
+
+            Raises:
+                HTTPException: 404 if the client does not exist.
+          operationId: create_checking_account_api_individual_clients__client_id__checking_accounts__post
+          parameters:
+            - name: client_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Client Id
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/CheckingAccountIn"
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/CheckingAccountOut"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+      /api/individual-clients/{client_id}/checking-accounts/{account_id}:
+        get:
+          tags:
+            - Checking
+          summary: Read Checking Account
+          description: >-
+            Retrieve details of a specific checking account.
+
+
+            Ensures the account belongs to the specified client.
+
+
+            Args:
+                client_id: The ID of the client.
+                account_id: The ID of the checking account to retrieve.
+                checking_account_service: Dependency injected service.
+
+            Returns:
+                The requested checking account.
+
+            Raises:
+                HTTPException: 404 if the account is not found or does not belong to the client.
+          operationId: read_checking_account_api_individual_clients__client_id__checking_accounts__account_id__get
+          parameters:
+            - name: client_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Client Id
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Account Id
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/CheckingAccountOut"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+        patch:
+          tags:
+            - Checking
+          summary: Update Checking Account
+          description: >-
+            Update a specific checking account partially.
+
+
+            Args:
+                client_id: The ID of the client.
+                account_id: The ID of the checking account to update.
+                account_in: Payload with the fields to update.
+                checking_account_service: Dependency injected service.
+
+            Returns:
+                The updated checking account.
+
+            Raises:
+                HTTPException: 404 if the account is not found or does not belong to the client.
+          operationId: update_checking_account_api_individual_clients__client_id__checking_accounts__account_id__patch
+          parameters:
+            - name: client_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Client Id
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Account Id
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/CheckingAccountUpdateIn"
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/CheckingAccountOut"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+        delete:
+          tags:
+            - Checking
+          summary: Delete Checking Account
+          description: >-
+            Delete a specific checking account.
+
+
+            This operation also deletes the underlying base account
+            representation.
+
+
+            Args:
+                client_id: The ID of the client.
+                account_id: The ID of the checking account to delete.
+                checking_account_service: Dependency injected service.
+
+            Returns:
+                None (200 OK) if successful.
+
+            Raises:
+                HTTPException: 404 if the account is not found or does not belong to the client.
+          operationId: delete_checking_account_api_individual_clients__client_id__checking_accounts__account_id__delete
+          parameters:
+            - name: client_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Client Id
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Account Id
+          responses:
+            "200":
+              description: Successful Response
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+      /api/checking-accounts/{account_id}/deposits/:
+        get:
+          tags:
+            - Deposit
+          summary: Read Deposits
+          description: |-
+            List all deposit transactions for a specific account.
+
+            Args:
+                account_id: The ID of the account.
+                deposit_service: Dependency injected service.
+                offset: Pagination offset.
+                limit: Maximum number of records to return.
+
+            Returns:
+                A list of deposit transactions.
+          operationId: read_deposits_api_checking_accounts__account_id__deposits__get
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Account Id
+            - name: offset
+              in: query
+              required: false
+              schema:
+                type: integer
+                default: 0
+                title: Offset
+            - name: limit
+              in: query
+              required: false
+              schema:
+                type: integer
+                maximum: 100
+                default: 100
+                title: Limit
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DepositOut"
+                    title: Response Read Deposits Api Checking Accounts  Account Id  Deposits  Get
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+        post:
+          tags:
+            - Deposit
+          summary: Create Deposit
+          description: |-
+            Create a new deposit transaction for an account.
+
+            Increases the account balance by the specified deposit value.
+
+            Args:
+                account_id: The ID of the account receiving the deposit.
+                deposit: Payload containing the deposit value.
+                deposit_service: Dependency injected service.
+
+            Returns:
+                The registered deposit transaction.
+
+            Raises:
+                HTTPException: 404 if the account is not found.
+          operationId: create_deposit_api_checking_accounts__account_id__deposits__post
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Account Id
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/DepositIn"
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/DepositOut"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+      /api/checking-accounts/{account_id}/deposits/{transaction_id}:
+        get:
+          tags:
+            - Deposit
+          summary: Read Deposit
+          description: >-
+            Retrieve details of a specific deposit transaction.
+
+
+            Enforces that the transaction belongs to the specified account.
+
+
+            Args:
+                account_id: The ID of the account.
+                transaction_id: The ID of the deposit transaction.
+                deposit_service: Dependency injected service.
+
+            Returns:
+                The requested deposit transaction.
+
+            Raises:
+                HTTPException: 404 if not found or does not belong to the account.
+          operationId: read_deposit_api_checking_accounts__account_id__deposits__transaction_id__get
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Account Id
+            - name: transaction_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Transaction Id
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/DepositOut"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+        delete:
+          tags:
+            - Deposit
+          summary: Delete Deposit
+          description: >-
+            Delete a specific deposit transaction.
+
+
+            Decreases the account balance, reverting the original deposit.
+
+
+            Args:
+                account_id: The ID of the account.
+                transaction_id: The ID of the deposit transaction to delete.
+                deposit_service: Dependency injected service.
+
+            Returns:
+                None (200 OK) if successful.
+
+            Raises:
+                HTTPException: 404 if not found or does not belong to the account.
+          operationId: delete_deposit_api_checking_accounts__account_id__deposits__transaction_id__delete
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Account Id
+            - name: transaction_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Transaction Id
+          responses:
+            "200":
+              description: Successful Response
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+      /api/checking-accounts/{account_id}/withdrawals/:
+        get:
+          tags:
+            - Withdrawal
+          summary: Read Withdrawals
+          description: |-
+            List all withdrawal transactions for a specific account.
+
+            Args:
+                account_id: The ID of the account.
+                withdrawal_service: Dependency injected service.
+                offset: Pagination offset.
+                limit: Maximum number of records to return.
+
+            Returns:
+                A list of withdrawal transactions.
+          operationId: read_withdrawals_api_checking_accounts__account_id__withdrawals__get
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Account Id
+            - name: offset
+              in: query
+              required: false
+              schema:
+                type: integer
+                default: 0
+                title: Offset
+            - name: limit
+              in: query
+              required: false
+              schema:
+                type: integer
+                maximum: 100
+                default: 100
+                title: Limit
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/WithdrawalOut"
+                    title: Response Read Withdrawals Api Checking Accounts  Account
+                      Id  Withdrawals  Get
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+        post:
+          tags:
+            - Withdrawal
+          summary: Create Withdrawal
+          description: >-
+            Create a new withdrawal transaction for an account.
+
+
+            Decreases the account balance by the specified withdrawal value.
+
+            Enforces business rules such as balance limits and withdrawal count.
+
+
+            Args:
+                account_id: The ID of the account making the withdrawal.
+                withdrawal: Payload containing the withdrawal value.
+                withdrawal_service: Dependency injected service.
+
+            Returns:
+                The registered withdrawal transaction.
+
+            Raises:
+                HTTPException: 404 if account not found, or 400 for business rule failures.
+          operationId: create_withdrawal_api_checking_accounts__account_id__withdrawals__post
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Account Id
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/WithdrawalIn"
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/WithdrawalOut"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+      /api/checking-accounts/{account_id}/withdrawals/{transaction_id}:
+        get:
+          tags:
+            - Withdrawal
+          summary: Read Withdrawal
+          description: >-
+            Retrieve details of a specific withdrawal transaction.
+
+
+            Enforces that the transaction belongs to the specified account.
+
+
+            Args:
+                account_id: The ID of the account.
+                transaction_id: The ID of the withdrawal transaction.
+                withdrawal_service: Dependency injected service.
+
+            Returns:
+                The requested withdrawal transaction.
+
+            Raises:
+                HTTPException: 404 if not found or does not belong to the account.
+          operationId: read_withdrawal_api_checking_accounts__account_id__withdrawals__transaction_id__get
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Account Id
+            - name: transaction_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Transaction Id
+          responses:
+            "200":
+              description: Successful Response
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/WithdrawalOut"
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+        delete:
+          tags:
+            - Withdrawal
+          summary: Delete Withdrawal
+          description: >-
+            Delete a specific withdrawal transaction.
+
+
+            Increases the account balance, reverting the original withdrawal.
+
+
+            Args:
+                account_id: The ID of the account.
+                transaction_id: The ID of the withdrawal transaction to delete.
+                withdrawal_service: Dependency injected service.
+
+            Returns:
+                None (200 OK) if successful.
+
+            Raises:
+                HTTPException: 404 if not found or does not belong to the account.
+          operationId: delete_withdrawal_api_checking_accounts__account_id__withdrawals__transaction_id__delete
+          parameters:
+            - name: account_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Account Id
+            - name: transaction_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                title: Transaction Id
+          responses:
+            "200":
+              description: Successful Response
+            "422":
+              description: Validation Error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/HTTPValidationError"
+    components:
+      schemas:
+        Body_login_for_access_token_api_auth_token_post:
+          properties:
+            grant_type:
+              anyOf:
+                - type: string
+                  pattern: ^password$
+                - type: "null"
+              title: Grant Type
+            username:
+              type: string
+              title: Username
+            password:
+              type: string
+              format: password
+              title: Password
+            scope:
+              type: string
+              title: Scope
+              default: ""
+            client_id:
+              anyOf:
+                - type: string
+                - type: "null"
+              title: Client Id
+            client_secret:
+              anyOf:
+                - type: string
+                - type: "null"
+              format: password
+              title: Client Secret
+          type: object
+          required:
+            - username
+            - password
+          title: Body_login_for_access_token_api_auth_token_post
+        CheckingAccountIn:
+          properties:
+            balance:
+              type: number
+              title: Balance
+            number:
+              type: integer
+              title: Number
+            branch:
+              type: string
+              title: Branch
+            limit:
+              type: number
+              title: Limit
+            withdrawal_limit:
+              type: integer
+              title: Withdrawal Limit
+          type: object
+          required:
+            - balance
+            - number
+            - branch
+            - limit
+            - withdrawal_limit
+          title: CheckingAccountIn
+          description: |-
+            Checking Account input schema for creation.
+
+            Used when validating requests to open a new checking account.
+
+            Attributes:
+                balance: Initial monetary balance of the account.
+                number: Unique account number.
+                branch: Branch code.
+                limit: Overdraft limit allowed for the checking account.
+                withdrawal_limit: Maximum number of withdrawals permitted.
+        CheckingAccountOut:
+          properties:
+            id:
+              type: integer
+              title: Id
+            limit:
+              type: number
+              title: Limit
+            withdrawal_limit:
+              type: integer
+              title: Withdrawal Limit
+            account_id:
+              type: integer
+              title: Account Id
+            created_at:
+              type: string
+              format: date-time
+              title: Created At
+            balance:
+              anyOf:
+                - type: number
+                - type: "null"
+              title: Balance
+            number:
+              anyOf:
+                - type: integer
+                - type: "null"
+              title: Number
+            branch:
+              anyOf:
+                - type: string
+                - type: "null"
+              title: Branch
+          type: object
+          required:
+            - id
+            - limit
+            - withdrawal_limit
+            - account_id
+            - created_at
+          title: CheckingAccountOut
+        CheckingAccountUpdateIn:
+          properties:
+            balance:
+              anyOf:
+                - type: number
+                - type: "null"
+              title: Balance
+            number:
+              anyOf:
+                - type: integer
+                - type: "null"
+              title: Number
+            branch:
+              anyOf:
+                - type: string
+                - type: "null"
+              title: Branch
+            limit:
+              anyOf:
+                - type: number
+                - type: "null"
+              title: Limit
+            withdrawal_limit:
+              anyOf:
+                - type: integer
+                - type: "null"
+              title: Withdrawal Limit
+          type: object
+          title: CheckingAccountUpdateIn
+          description: |-
+            Checking Account input schema for partial updates.
+
+            All fields are optional, allowing PATCH requests to update only
+            the provided attributes.
+
+            Attributes:
+                balance: New monetary balance of the account.
+                number: New unique account number.
+                branch: New branch code.
+                limit: New overdraft limit allowed.
+                withdrawal_limit: New maximum number of withdrawals permitted.
+        DepositIn:
+          properties:
+            value:
+              type: number
+              title: Value
+          type: object
+          required:
+            - value
+          title: DepositIn
+          description: |-
+            Deposit input schema for creation.
+
+            Attributes:
+                value: Monetary value to be deposited. Must be positive.
+        DepositOut:
+          properties:
+            id:
+              type: integer
+              title: Id
+            value:
+              type: number
+              title: Value
+            type:
+              type: string
+              title: Type
+            created_at:
+              type: string
+              format: date-time
+              title: Created At
+          type: object
+          required:
+            - id
+            - value
+            - type
+            - created_at
+          title: DepositOut
+        HTTPValidationError:
+          properties:
+            detail:
+              items:
+                $ref: "#/components/schemas/ValidationError"
+              type: array
+              title: Detail
+          type: object
+          title: HTTPValidationError
+        IndividualClientIn:
+          properties:
+            address:
+              type: string
+              title: Address
+            name:
+              type: string
+              title: Name
+            cpf:
+              type: string
+              title: Cpf
+            date_of_birth:
+              type: string
+              format: date
+              title: Date Of Birth
+          type: object
+          required:
+            - address
+            - name
+            - cpf
+            - date_of_birth
+          title: IndividualClientIn
+          description: >-
+            Individual Client input schema for creation.
+
+
+            Extends the base Client schema to include personal information.
+
+
+            Attributes:
+                name: Full name of the individual.
+                cpf: Brazilian natural person registry number (Cadastro de Pessoas Físicas).
+                date_of_birth: Birthdate of the individual.
+        IndividualClientOut:
+          properties:
+            id:
+              type: integer
+              title: Id
+            name:
+              type: string
+              title: Name
+            cpf:
+              type: string
+              title: Cpf
+            date_of_birth:
+              type: string
+              format: date
+              title: Date Of Birth
+            address:
+              type: string
+              title: Address
+          type: object
+          required:
+            - id
+            - name
+            - cpf
+            - date_of_birth
+            - address
+          title: IndividualClientOut
+        IndividualClientUpdateIn:
+          properties:
+            address:
+              anyOf:
+                - type: string
+                - type: "null"
+              title: Address
+            name:
+              anyOf:
+                - type: string
+                - type: "null"
+              title: Name
+            cpf:
+              anyOf:
+                - type: string
+                - type: "null"
+              title: Cpf
+            date_of_birth:
+              anyOf:
+                - type: string
+                  format: date
+                - type: "null"
+              title: Date Of Birth
+          type: object
+          title: IndividualClientUpdateIn
+          description: |-
+            Individual Client input schema for partial updates.
+
+            All fields are optional, allowing PATCH requests to update only
+            the provided attributes.
+
+            Attributes:
+                name: New full name of the individual.
+                cpf: New Brazilian natural person registry number.
+                date_of_birth: New birthdate of the individual.
+        Token:
+          properties:
+            access_token:
+              type: string
+              title: Access Token
+            token_type:
+              type: string
+              title: Token Type
+          type: object
+          required:
+            - access_token
+            - token_type
+          title: Token
+          description: |-
+            OAuth2 Bearer Token response schema.
+
+            Attributes:
+                access_token: The generated JWT access token string.
+                token_type: The type of the token, typically 'bearer'.
+        User:
+          properties:
+            username:
+              type: string
+              title: Username
+            email:
+              anyOf:
+                - type: string
+                - type: "null"
+              title: Email
+            full_name:
+              anyOf:
+                - type: string
+                - type: "null"
+              title: Full Name
+            disabled:
+              anyOf:
+                - type: boolean
+                - type: "null"
+              title: Disabled
+          type: object
+          required:
+            - username
+          title: User
+          description: >-
+            Base User schema.
+
+
+            Contains common public fields for user representation.
+
+
+            Attributes:
+                username: Unique login identifier.
+                email: Optional contact email address.
+                full_name: Optional real name of the user.
+                disabled: Flag indicating if the user is suspended from logging in.
+        UserUpdateIn:
+          properties:
+            email:
+              anyOf:
+                - type: string
+                - type: "null"
+              title: Email
+            full_name:
+              anyOf:
+                - type: string
+                - type: "null"
+              title: Full Name
+            disabled:
+              anyOf:
+                - type: boolean
+                - type: "null"
+              title: Disabled
+            plain_password:
+              anyOf:
+                - type: string
+                - type: "null"
+              title: Plain Password
+          type: object
+          title: UserUpdateIn
+          description: >-
+            User input schema for partial updates.
+
+
+            All fields are optional, allowing PATCH requests to update only
+
+            the provided attributes.
+
+
+            Attributes:
+                email: New optional contact email address.
+                full_name: New optional real name of the user.
+                disabled: New flag indicating if the user is suspended.
+                plain_password: New optional raw password to replace the current one.
+        ValidationError:
+          properties:
+            loc:
+              items:
+                anyOf:
+                  - type: string
+                  - type: integer
+              type: array
+              title: Location
+            msg:
+              type: string
+              title: Message
+            type:
+              type: string
+              title: Error Type
+            input:
+              title: Input
+            ctx:
+              type: object
+              title: Context
+          type: object
+          required:
+            - loc
+            - msg
+            - type
+          title: ValidationError
+        WithdrawalIn:
+          properties:
+            value:
+              type: number
+              title: Value
+          type: object
+          required:
+            - value
+          title: WithdrawalIn
+          description: |-
+            Withdrawal input schema for creation.
+
+            Attributes:
+                value: Monetary value to be withdrawn. Must be positive and
+                    not exceed the account balance or limits.
+        WithdrawalOut:
+          properties:
+            id:
+              type: integer
+              title: Id
+            value:
+              type: number
+              title: Value
+            type:
+              type: string
+              title: Type
+            created_at:
+              type: string
+              format: date-time
+              title: Created At
+          type: object
+          required:
+            - id
+            - value
+            - type
+            - created_at
+          title: WithdrawalOut
+      securitySchemes:
+        OAuth2PasswordBearer:
+          type: oauth2
+          flows:
+            password:
+              tokenUrl: auth/token
+    tags:
+      - name: Auth
+        description: Authentication
+      - name: Users
+        description: User management
+      - name: Individual
+        description: Individual clients
+      - name: Checking
+        description: Checking accounts
+      - name: Deposit
+        description: Deposits
+      - name: Withdrawal
+        description: Withdrawals
+  meta:
+    id: spc_278fc331d48f4310b4f237105151b871
+    created: 1774551410134
+    modified: 1774551410134
