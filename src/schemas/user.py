@@ -69,4 +69,4 @@ class UserUpdateIn(BaseModel):
     email: str | None = None
     full_name: str | None = None
     disabled: bool | None = None
-    plain_password: str | None
+    plain_password: str | None = None
