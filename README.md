@@ -1,137 +1,96 @@
 # FastAPI Banking System 🏦
 
-Um sistema bancário RESTful desenvolvido com **FastAPI**, focado em gerenciamento de clientes, contas correntes e transações financeiras com autenticação JWT.
+Um sistema bancário RESTful completo desenvolvido com **FastAPI**, focado em abstrair a alta performance de requisições assíncronas para o gerenciamento de clientes, contas correntes e transações financeiras garantindo uma segurança robusta via autenticação JWT.
 
 ## 🚀 Funcionalidades Principais
 
-- **Autenticação e Usuários**:
-  - Login via OAuth2 com geração de token JWT.
-  - Criação de usuário exclusivamente via comando CLI (sem endpoint público).
-  - Usuário autenticado pode visualizar e atualizar o próprio perfil.
-  - Bloqueio de acesso para usuários desabilitados.
-
-- **Gestão de Clientes**:
-  - Cadastro, listagem, atualização e remoção de clientes individuais.
-  - Remoção em cascata: deletar um cliente remove também o registro pai.
-
-- **Contas Correntes**:
-  - Criação de contas correntes com limite e limite de saques.
-  - Listagem e detalhamento com saldo, número e agência da conta.
-  - Remoção em cascata: deletar a conta corrente remove também a conta base.
-
-- **Transações**:
-  - Registro de depósitos e saques com atualização automática de saldo.
-  - Histórico de transações por conta.
-  - Remoção de transação reverte o saldo automaticamente.
-  - Saques exigem usuário ativo autenticado.
-
-- **Migrações**:
-  - Gerenciamento de schema com **Alembic** em modo assíncrono.
+- **Autenticação e Perfis de Usuário**:
+  - Segurança de ponta com geração de token JWT OAuth2.
+  - Bloqueio de novos cadastros públicos: a criação de usuário gerente é feita exclusivamente via linha de comando (CLI) garantindo proteção do sistema.
+  - Perfil restrito onde o usuário pode visualizar e atualizar seus próprios dados de forma isolada.
+- **Gestão de Acerto (Clientes e Contas)**:
+  - Cadastro interligado: a criação do `IndividualClient` já provisiona automaticamente a base `Client`.
+  - Controle rígido de duplicação: validação por CPF único para evitar redundâncias na base.
+  - Contas Correntes segmentadas com trava de limite dinâmico e limite diário de saque.
+  - Cascata Inteligente: a exclusão de clientes ou contas afaga todos os registros órfãos garantindo a limpeza do banco.
+- **Transações Financeiras (Deposits & Withdrawals)**:
+  - Registro imutável de transações financeiras acoplados diretamente ao saldo.
+  - Regra de Saque Seguro: Todo saque desconta o saldo final da conta, necessitando de um usuário ativo/autenticado.
+- **Ambiente Moderno**:
+  - Banco de Dados assíncrono mantido via **AIOSQLite**.
+  - Migrações dinâmicas auto-referenciadas utilizando **Alembic** e **SQLModel**.
 
 ## 🛠 Tecnologias Utilizadas
 
 - [**Python 3.12+**](https://www.python.org/): Linguagem base do projeto.
 - [**FastAPI**](https://fastapi.tiangolo.com/): Framework web assíncrono de alta performance.
-- [**SQLModel**](https://sqlmodel.tiangolo.com/): ORM com integração nativa ao FastAPI e Pydantic.
-- [**SQLAlchemy (async)**](https://docs.sqlalchemy.org/): Engine assíncrona para acesso ao banco.
-- [**Alembic**](https://alembic.sqlalchemy.org/): Migrações de banco de dados.
-- [**aiosqlite**](https://github.com/omnilib/aiosqlite): Driver assíncrono para SQLite.
-- [**PyJWT**](https://pyjwt.readthedocs.io/): Geração e validação de tokens JWT.
-- [**pwdlib (Argon2)**](https://github.com/frankie567/pwdlib): Hash seguro de senhas.
-- [**Pydantic Settings**](https://docs.pydantic.dev/latest/concepts/pydantic_settings/): Configuração via variáveis de ambiente.
-- [**Typer**](https://typer.tiangolo.com/): CLI para criação de usuários.
-- [**uv**](https://github.com/astral-sh/uv): Gerenciamento de dependências e ambiente virtual.
+- [**SQLModel**](https://sqlmodel.tiangolo.com/): ORM moderno unindo o melhor do SQLAlchemy e do Pydantic.
+- [**Alembic**](https://alembic.sqlalchemy.org/): Ferramenta para gerenciar migrações de banco de dados.
+- [**PyJWT & PwdLib**](https://pyjwt.readthedocs.io/): Para segurança de senhas via Argon2 e tokens de longa duração.
+- [**uv**](https://github.com/astral-sh/uv): Gerenciamento eficiente e ultrarrápido de dependências do Python.
 
-## 📐 Arquitetura
+**Painel Swagger Interativo**
+_Acesse diretamente via `/docs` para visualizar todas as rotas e realizar testes rápidos da sua API com OAuth2 integrado nas requisições._
 
-```
-src/
-├── commands/       # Comandos CLI (criação de usuário)
-├── controllers/    # Routers FastAPI (endpoints HTTP)
-├── core/           # Configurações da aplicação
-├── migrations/     # Migrações Alembic
-├── models/         # Modelos SQLModel (tabelas do banco)
-├── schemas/        # Schemas Pydantic (entrada/saída de dados)
-├── services/       # Lógica de negócio
-├── utils/          # Utilitários (banco, segurança, senha)
-└── views/          # Schemas de resposta (output)
-```
+**Coleção Insomnia Pronta**
+_No diretório `docs/`, está disponível a collection [`insomnia_collection.yaml`](docs/insomnia_collection.yaml) contendo todas as requisições, variáveis de ambientes isoladas e scripts para captar os IDs das respostas e alimentar as sub-requisições (Evitando copiar e colar o `client_id` na mão em cada teste)!_
 
-## 🔧 Como Rodar o Projeto
+---
+
+Este projeto utiliza `uv` para gerenciamento de dependências, garantindo instalações extremamente rápidas.
 
 ### Pré-requisitos
 
-- Python 3.12+
-- [uv](https://github.com/astral-sh/uv) instalado
+- Python 3.12+ instalado.
+- [uv](https://github.com/astral-sh/uv) instalado no sistema operacional.
 
 ### Passo a Passo
 
-**1. Clone o repositório**
-```bash
-git clone https://github.com/Lidianacosta/FastAPIBankingSystem.git
-cd FastAPIBankingSystem
-```
+1. **Clone o repositório:**
 
-**2. Crie e ative o ambiente virtual**
-```bash
-uv sync
-```
+   ```bash
+   git clone https://github.com/Lidianacosta/FastAPIBankingSystem.git
+   cd FastAPIBankingSystem
+   ```
 
-**3. Configure as variáveis de ambiente**
-```bash
-cp .env.example .env
-# Edite o .env com sua SECRET_KEY e demais configurações
-```
+2. **Crie e ative o ambiente virtual:**
 
-**4. Aplique as migrações**
-```bash
-uv run alembic upgrade head
-```
+   ```bash
+   # Sincroniza e baixa todos os pacotes em milissegundos
+   uv sync
+   ```
 
-**5. Crie o usuário administrador**
-```bash
-uv run python -m src.commands.create_user
-```
+3. **Configure as variáveis de ambiente:**
 
-**6. Inicie o servidor**
-```bash
-uv run fastapi dev src/main.py
-```
+   ```bash
+   cp .env.example .env
+   # Edite o .env caso queira mudar a secret ou configurações de banco
+   ```
 
-**7. Acesse a documentação interativa**
+4. **Aplique as migrações (Criação das Tabelas):**
 
-- Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
-- ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+   ```bash
+   uv run alembic upgrade head
+   ```
 
-## 🔑 Autenticação
+5. **Crie um superusuário (Via Linha de Comando de Segurança):**
 
-Todos os endpoints (exceto `/api/auth/token`) exigem autenticação via **Bearer Token**.
+   ```bash
+   uv run python -m src.commands.create_user
+   ```
 
-1. Crie um usuário via CLI
-2. Faça `POST /api/auth/token` com `username` e `password`
-3. Use o `access_token` retornado no header: `Authorization: Bearer <token>`
+6. **Inicie o servidor localmente:**
 
-## 📋 Endpoints
+   ```bash
+   uv run fastapi dev src/main.py
+   ```
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `POST` | `/api/auth/token` | Login e geração de token JWT |
-| `GET` | `/api/users/me/` | Perfil do usuário autenticado |
-| `PATCH` | `/api/users/me/` | Atualizar perfil do usuário |
-| `GET` | `/api/individual-clients/` | Listar clientes |
-| `POST` | `/api/individual-clients/` | Criar cliente |
-| `GET` | `/api/individual-clients/{id}` | Detalhar cliente |
-| `PATCH` | `/api/individual-clients/{id}` | Atualizar cliente |
-| `DELETE` | `/api/individual-clients/{id}` | Remover cliente |
-| `GET` | `/api/individual-clients/{id}/checking-accounts/` | Listar contas do cliente |
-| `POST` | `/api/individual-clients/{id}/checking-accounts/` | Criar conta corrente |
-| `GET` | `/api/checking-accounts/{id}/deposits/` | Listar depósitos |
-| `POST` | `/api/checking-accounts/{id}/deposits/` | Realizar depósito |
-| `DELETE` | `/api/checking-accounts/{id}/deposits/{tid}` | Remover depósito |
-| `GET` | `/api/checking-accounts/{id}/withdrawals/` | Listar saques |
-| `POST` | `/api/checking-accounts/{id}/withdrawals/` | Realizar saque |
-| `DELETE` | `/api/checking-accounts/{id}/withdrawals/{tid}` | Remover saque |
+Acesse a documentação interativa em `http://127.0.0.1:8000/docs` para autenticar o usuário que você acabou de criar e gerenciar todo o banco!
 
-## 🌍 Linguagem
+## 📸 Visão do Sistema (API)
 
-O código está escrito em **inglês** seguindo boas práticas de desenvolvimento. A documentação está disponível em **português**.
+Por ser uma aplicação de backend puramente REST, a visualização gráfica acontece diretamente pelas documentações interativas geradas.
+
+![](./docs/imgs/Screenshot%20from%202026-04-01%2015-15-28.png)
+![](./docs/imgs/Screenshot%20from%202026-04-01%2015-15-35.png)
+![](./docs/imgs/Screenshot%20from%202026-04-01%2015-15-46.png)
