@@ -28,7 +28,9 @@ class IndividualClientService:
     def __init__(self, session: AsyncSessionDep) -> None:
         self.session = session
 
-    async def create(self, client_in: IndividualClientIn) -> IndividualClient:
+    async def create(
+        self, client_in: IndividualClientIn
+    ) -> IndividualClientOut:
         """Create a new individual client.
 
         Creates the generic `Client` record first to obtain an ID,
@@ -39,7 +41,19 @@ class IndividualClientService:
 
         Returns:
             The newly created IndividualClient database model.
+
+        Raises:
+            HTTPException: 400 if the CPF is already registered.
         """
+        statement = select(IndividualClient).where(
+            IndividualClient.cpf == client_in.cpf
+        )
+        result = await self.session.exec(statement)
+        if result.first():
+            raise HTTPException(
+                status_code=400, detail="CPF already registered"
+            )
+
         client = Client(address=client_in.address, type="individual")
         self.session.add(client)
         await self.session.flush([client])
@@ -53,7 +67,10 @@ class IndividualClientService:
         self.session.add(individual_client)
         await self.session.commit()
         await self.session.refresh(individual_client)
-        return individual_client
+
+        return_data = individual_client.model_dump()
+        return_data["address"] = client_in.address
+        return IndividualClientOut(**return_data)
 
     async def read(self, client_id: int) -> IndividualClientOut:
         """Retrieve an individual client by their ID.
