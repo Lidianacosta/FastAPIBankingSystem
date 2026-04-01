@@ -15,3 +15,6 @@ wheels/
 
 # database
 db.sqlite
+
+# vscode
+.vscode
