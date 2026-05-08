@@ -6,7 +6,7 @@ to a specific client. All endpoints require authentication.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 
 from src.schemas.account import CheckingAccountIn, CheckingAccountUpdateIn
 from src.services.checking_account import CheckingAccountServiceDep
@@ -42,7 +42,9 @@ async def read_checking_accounts(
     )
 
 
-@router.post("/", response_model=CheckingAccountOut)
+@router.post(
+    "/", response_model=CheckingAccountOut, status_code=status.HTTP_201_CREATED
+)
 async def create_checking_account(
     client_id: int,
     account_in: CheckingAccountIn,

@@ -10,6 +10,7 @@ from fastapi import Depends, HTTPException
 from sqlmodel import col, select
 
 from src.models.account import Account, CheckingAccount
+from src.models.client import Client
 from src.schemas.account import CheckingAccountIn, CheckingAccountUpdateIn
 from src.utils.database import AsyncSessionDep
 from src.views.account import CheckingAccountOut
@@ -43,11 +44,14 @@ class CheckingAccountService:
         Returns:
             The newly created checking account representation.
         """
+
+        client = await self.__get_client_by_id(client_id)
+
         account = Account(
             balance=account_in.balance,
             number=account_in.number,
             branch=account_in.branch,
-            client_id=client_id,
+            client_id=client.id,
             type="checking",
         )
         self.session.add(account)
@@ -89,7 +93,9 @@ class CheckingAccountService:
         accounts = await self.session.exec(statement)
         return [await self.__to_out(c) for c in accounts.all()]
 
-    async def read(self, account_id: int, client_id: int) -> CheckingAccountOut:
+    async def read(
+        self, account_id: int, client_id: int
+    ) -> CheckingAccountOut:
         """Retrieve a specific checking account by ID.
 
         Enforces that the specified client is the owner of the account.
@@ -199,6 +205,12 @@ class CheckingAccountService:
                 status_code=404, detail="Checking account not found"
             )
         return account
+
+    async def __get_client_by_id(self, client_id: int) -> Client:
+        client = await self.session.get(Client, client_id)
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        return client
 
 
 CheckingAccountServiceDep = Annotated[
