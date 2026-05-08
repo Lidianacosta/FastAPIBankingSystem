@@ -93,9 +93,7 @@ class CheckingAccountService:
         accounts = await self.session.exec(statement)
         return [await self.__to_out(c) for c in accounts.all()]
 
-    async def read(
-        self, account_id: int, client_id: int
-    ) -> CheckingAccountOut:
+    async def read(self, account_id: int, client_id: int) -> CheckingAccountOut:
         """Retrieve a specific checking account by ID.
 
         Enforces that the specified client is the owner of the account.
@@ -201,9 +199,7 @@ class CheckingAccountService:
     async def __get_by_id(self, account_id: int) -> CheckingAccount:
         account = await self.session.get(CheckingAccount, account_id)
         if not account:
-            raise HTTPException(
-                status_code=404, detail="Checking account not found"
-            )
+            raise HTTPException(status_code=404, detail="Checking account not found")
         return account
 
     async def __get_client_by_id(self, client_id: int) -> Client:

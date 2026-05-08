@@ -111,12 +111,14 @@ async def update_checking_account(
     Raises:
         HTTPException: 404 if the account is not found or does not belong to the client.
     """
-    return await checking_account_service.update(
-        account_id, account_in, client_id
-    )
+    return await checking_account_service.update(account_id, account_in, client_id)
 
 
-@router.delete("/{account_id}", response_model=None)
+@router.delete(
+    "/{account_id}",
+    response_model=None,
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 async def delete_checking_account(
     client_id: int,
     account_id: int,
