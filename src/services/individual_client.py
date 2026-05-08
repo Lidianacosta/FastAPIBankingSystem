@@ -28,9 +28,7 @@ class IndividualClientService:
     def __init__(self, session: AsyncSessionDep) -> None:
         self.session = session
 
-    async def create(
-        self, client_in: IndividualClientIn
-    ) -> IndividualClientOut:
+    async def create(self, client_in: IndividualClientIn) -> IndividualClientOut:
         """Create a new individual client.
 
         Creates the generic `Client` record first to obtain an ID,
@@ -50,9 +48,7 @@ class IndividualClientService:
         )
         result = await self.session.exec(statement)
         if result.first():
-            raise HTTPException(
-                status_code=400, detail="CPF already registered"
-            )
+            raise HTTPException(status_code=400, detail="CPF already registered")
 
         client = Client(address=client_in.address, type="individual")
         self.session.add(client)
@@ -188,9 +184,7 @@ class IndividualClientService:
     async def __get_by_id(self, client_id) -> IndividualClient:
         client = await self.session.get(IndividualClient, client_id)
         if not client:
-            raise HTTPException(
-                status_code=404, detail="Individual client not found"
-            )
+            raise HTTPException(status_code=404, detail="Individual client not found")
 
         return client
 
