@@ -40,6 +40,7 @@ async def login_for_access_token(
 
     Raises:
         HTTPException: 401 Unauthorized if credentials are invalid.
+
     """
     user = await authenticate_user(
         form_data.username, form_data.password, user_service

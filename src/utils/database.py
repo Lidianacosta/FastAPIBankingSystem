@@ -40,6 +40,7 @@ async def get_async_session():
 
     Yields:
         AsyncSession: An asynchronous SQLModel session connected to the engine.
+
     """
     async with AsyncSession(async_engine) as session:
         yield session

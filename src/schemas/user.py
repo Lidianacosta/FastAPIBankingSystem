@@ -17,6 +17,7 @@ class User(BaseModel):
         email: Optional contact email address.
         full_name: Optional real name of the user.
         disabled: Flag indicating if the user is suspended from logging in.
+
     """
 
     username: str
@@ -34,6 +35,7 @@ class UserDB(User):
     Attributes:
         id: The database primary key constraint for the user.
         hashed_password: Argon2 generated hash for password verification.
+
     """
 
     id: int
@@ -48,6 +50,7 @@ class UserIn(User):
 
     Attributes:
         plain_password: The raw password provided by the user, which will be hashed later.
+
     """
 
     plain_password: str
@@ -64,6 +67,7 @@ class UserUpdateIn(BaseModel):
         full_name: New optional real name of the user.
         disabled: New flag indicating if the user is suspended.
         plain_password: New optional raw password to replace the current one.
+
     """
 
     email: str | None = None

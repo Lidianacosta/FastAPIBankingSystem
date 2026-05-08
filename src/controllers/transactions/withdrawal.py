@@ -35,6 +35,7 @@ async def read_withdrawals(
 
     Returns:
         A list of withdrawal transactions.
+
     """
     return await withdrawal_service.read_all(
         account_id=account_id, offset=offset, limit=limit
@@ -62,6 +63,7 @@ async def create_withdrawal(
 
     Raises:
         HTTPException: 404 if account not found, or 400 for business rule failures.
+
     """
     return await withdrawal_service.create(withdrawal, account_id)
 
@@ -86,6 +88,7 @@ async def read_withdrawal(
 
     Raises:
         HTTPException: 404 if not found or does not belong to the account.
+
     """
     return await withdrawal_service.read(withdrawal_id, account_id)
 
@@ -110,5 +113,6 @@ async def delete_withdrawal(
 
     Raises:
         HTTPException: 404 if not found or does not belong to the account.
+
     """
     return await withdrawal_service.delete(withdrawal_id, account_id)

@@ -17,6 +17,7 @@ class User(Base, table=True):
         full_name: Optional real name of the user.
         disabled: Flag indicating if the user is suspended from logging in.
         hashed_password: Argon2 generated hash for password verification.
+
     """
 
     username: str

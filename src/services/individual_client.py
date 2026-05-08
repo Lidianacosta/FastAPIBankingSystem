@@ -23,12 +23,21 @@ class IndividualClientService:
 
     Attributes:
         session: The asynchronous database session.
+
     """
 
     def __init__(self, session: AsyncSessionDep) -> None:
+        """Initialize the service with a database session.
+
+        Args:
+            session: The asynchronous database session.
+
+        """
         self.session = session
 
-    async def create(self, client_in: IndividualClientIn) -> IndividualClientOut:
+    async def create(
+        self, client_in: IndividualClientIn
+    ) -> IndividualClientOut:
         """Create a new individual client.
 
         Creates the generic `Client` record first to obtain an ID,
@@ -42,13 +51,16 @@ class IndividualClientService:
 
         Raises:
             HTTPException: 400 if the CPF is already registered.
+
         """
         statement = select(IndividualClient).where(
             IndividualClient.cpf == client_in.cpf
         )
         result = await self.session.exec(statement)
         if result.first():
-            raise HTTPException(status_code=400, detail="CPF already registered")
+            raise HTTPException(
+                status_code=400, detail="CPF already registered"
+            )
 
         client = Client(address=client_in.address, type="individual")
         self.session.add(client)
@@ -82,6 +94,7 @@ class IndividualClientService:
 
         Raises:
             HTTPException: 404 if the individual client is not found.
+
         """
         individual = await self.__get_by_id(client_id)
         client = await self.session.get(Client, individual.client_id)
@@ -105,6 +118,7 @@ class IndividualClientService:
 
         Returns:
             A list of IndividualClientOut schema instances.
+
         """
         statement = select(IndividualClient).offset(offset).limit(limit)
         result = await self.session.exec(statement)
@@ -138,6 +152,7 @@ class IndividualClientService:
 
         Raises:
             HTTPException: 404 if the client is not found.
+
         """
         individual = await self.__get_by_id(client_id)
         data = client_in.model_dump(exclude_unset=True)
@@ -173,6 +188,7 @@ class IndividualClientService:
 
         Raises:
             HTTPException: 404 if the client is not found.
+
         """
         individual = await self.__get_by_id(client_id)
         parent_client = await self.session.get(Client, individual.client_id)
@@ -182,13 +198,39 @@ class IndividualClientService:
         await self.session.commit()
 
     async def __get_by_id(self, client_id) -> IndividualClient:
+        """Retrieve an individual client by ID or raise 404.
+
+        Args:
+            client_id: The primary key of the individual client.
+
+        Returns:
+            The found IndividualClient instance.
+
+        Raises:
+            HTTPException: 404 if not found.
+
+        """
         client = await self.session.get(IndividualClient, client_id)
         if not client:
-            raise HTTPException(status_code=404, detail="Individual client not found")
+            raise HTTPException(
+                status_code=404, detail="Individual client not found"
+            )
 
         return client
 
     async def __get_client_by_id(self, client_id) -> Client:
+        """Retrieve a base client by ID or raise 404.
+
+        Args:
+            client_id: The primary key of the base client.
+
+        Returns:
+            The found Client instance.
+
+        Raises:
+            HTTPException: 404 if not found.
+
+        """
         client = await self.session.get(Client, client_id)
         if not client:
             raise HTTPException(status_code=404, detail="client not found")

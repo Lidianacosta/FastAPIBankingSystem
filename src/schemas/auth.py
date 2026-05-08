@@ -12,6 +12,7 @@ class Token(BaseModel):
     Attributes:
         access_token: The generated JWT access token string.
         token_type: The type of the token, typically 'bearer'.
+
     """
 
     access_token: str
@@ -25,6 +26,7 @@ class TokenData(BaseModel):
 
     Attributes:
         username: The username extracted from the token subject payload.
+
     """
 
     username: str | None = None

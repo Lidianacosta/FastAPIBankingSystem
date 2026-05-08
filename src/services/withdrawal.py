@@ -28,6 +28,11 @@ class WithdrawalService:
     """
 
     def __init__(self, session: AsyncSessionDep) -> None:
+        """Initialize the withdrawal service.
+
+        Args:
+            session: The asynchronous database session.
+        """
         self.session = session
 
     async def create(
@@ -177,6 +182,15 @@ class WithdrawalService:
     async def __verify_ownership(
         self, transaction: Transaction, account_id: int
     ) -> None:
+        """Verify that a transaction belongs to a specific account.
+
+        Args:
+            transaction: The transaction model instance.
+            account_id: The ID of the checking account to verify against.
+
+        Raises:
+            HTTPException: 403 if the transaction does not belong to the account.
+        """
         checking = await self.__get_checking_by_id(account_id)
         if transaction.account_id != checking.account_id:
             raise HTTPException(
@@ -185,6 +199,17 @@ class WithdrawalService:
             )
 
     async def __get_checking_by_id(self, account_id: int) -> CheckingAccount:
+        """Internal helper to retrieve a checking account by ID.
+
+        Args:
+            account_id: The ID of the checking account to retrieve.
+
+        Returns:
+            The CheckingAccount model instance.
+
+        Raises:
+            HTTPException: 404 if the checking account is not found.
+        """
         checking = await self.session.get(CheckingAccount, account_id)
         if not checking:
             raise HTTPException(
@@ -193,6 +218,17 @@ class WithdrawalService:
         return checking
 
     async def __get_by_id(self, transaction_id: int) -> Transaction:
+        """Internal helper to retrieve a withdrawal transaction by ID.
+
+        Args:
+            transaction_id: The ID of the transaction to retrieve.
+
+        Returns:
+            The Transaction model instance.
+
+        Raises:
+            HTTPException: 404 if the withdrawal is not found.
+        """
         transaction = await self.session.get(Transaction, transaction_id)
         if not transaction or transaction.type != "withdrawal":
             raise HTTPException(status_code=404, detail="Withdrawal not found")

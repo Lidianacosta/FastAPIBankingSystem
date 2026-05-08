@@ -35,6 +35,7 @@ async def read_deposits(
 
     Returns:
         A list of deposit transactions.
+
     """
     return await deposit_service.read_all(
         account_id=account_id, offset=offset, limit=limit
@@ -61,6 +62,7 @@ async def create_deposit(
 
     Raises:
         HTTPException: 404 if the account is not found.
+
     """
     return await deposit_service.create(deposit, account_id)
 
@@ -85,6 +87,7 @@ async def read_deposit(
 
     Raises:
         HTTPException: 404 if not found or does not belong to the account.
+
     """
     return await deposit_service.read(deposit_id, account_id)
 
@@ -109,5 +112,6 @@ async def delete_deposit(
 
     Raises:
         HTTPException: 404 if not found or does not belong to the account.
+
     """
     return await deposit_service.delete(deposit_id, account_id)

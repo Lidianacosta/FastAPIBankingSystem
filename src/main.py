@@ -1,3 +1,9 @@
+"""Main application entry point.
+
+Configures the FastAPI application, includes API routers, and sets up
+the database connection lifespan.
+"""
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -14,6 +20,15 @@ from src.utils.database import async_create_db_and_tables
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Manage the application lifecycle.
+
+    Handles startup tasks such as creating database tables and
+    shutdown cleanup.
+
+    Args:
+        app: The FastAPI application instance.
+
+    """
     await async_create_db_and_tables()
     yield
 

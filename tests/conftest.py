@@ -6,21 +6,20 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.core.config import settings
 from src.main import app
 from src.models.user import User
-from src.utils.password import get_password_hash
-
-settings.database_url = "sqlite+aiosqlite:///:memory:"
-settings.environment = "testing"
-
 from src.utils.database import (
-    AsyncSessionDep,
     async_create_db_and_tables,
     async_engine,
+    get_async_session,
 )
+from src.utils.password import get_password_hash
 
 
 @pytest_asyncio.fixture(scope="function")
 async def db():
     """Create all tables and drop all after usage."""
+    settings.database_url = "sqlite+aiosqlite:///:memory:"
+    settings.environment = "testing"
+
     await async_create_db_and_tables()
 
     yield
@@ -36,7 +35,7 @@ async def client(db):
         async with AsyncSession(async_engine) as session:
             yield session
 
-    app.dependency_overrides[AsyncSessionDep] = override_get_session
+    app.dependency_overrides[get_async_session] = override_get_session
 
     transport = ASGITransport(app=app)
     headers = {
@@ -72,12 +71,14 @@ async def access_token(client: AsyncClient):
             "grant_type": "password",
         },
         headers={
-            "Authorization": f"Bearer token",
+            "Authorization": "Bearer token",
             "Content-Type": "application/x-www-form-urlencoded",
         },
     )
 
     if response.status_code != 200:
-        raise Exception(f"Auth failed: {response.status_code} - {response.text}")
+        raise Exception(
+            f"Auth failed: {response.status_code} - {response.text}"
+        )
 
     return response.json()["access_token"]

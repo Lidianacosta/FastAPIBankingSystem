@@ -19,6 +19,7 @@ class Account(Base, table=True):
         branch: Branch code where the account is registered.
         type: The specific type of account (e.g., 'account', 'checking').
         client_id: Foreign key linking to the Client who owns this account.
+
     """
 
     balance: float | None = None
@@ -38,6 +39,7 @@ class CheckingAccount(Base, table=True):
         limit: Overdraft limit allowed for the checking account.
         withdrawal_limit: Maximum number of withdrawals permitted per day/period.
         account_id: Foreign key linking to the base Account record.
+
     """
 
     limit: float | None = None

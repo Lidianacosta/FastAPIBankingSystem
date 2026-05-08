@@ -19,7 +19,9 @@ async def created_client(client: AsyncClient, access_token: str):
 
 
 @pytest.fixture()
-async def created_account(client: AsyncClient, access_token: str, created_client: dict):
+async def created_account(
+    client: AsyncClient, access_token: str, created_client: dict
+):
     client_id = created_client["id"]
     payload = {
         "balance": 1000.0,

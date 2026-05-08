@@ -1,3 +1,5 @@
+"""Database models for the application."""
+
 from .account import Account, CheckingAccount
 from .client import Client, IndividualClient
 from .transaction import Transaction

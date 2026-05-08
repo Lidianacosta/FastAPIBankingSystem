@@ -36,6 +36,7 @@ async def read_checking_accounts(
 
     Returns:
         A list of checking accounts.
+
     """
     return await checking_account_service.read_all(
         client_id=client_id, offset=offset, limit=limit
@@ -62,6 +63,7 @@ async def create_checking_account(
 
     Raises:
         HTTPException: 404 if the client does not exist.
+
     """
     return await checking_account_service.create(account_in, client_id)
 
@@ -86,6 +88,7 @@ async def read_checking_account(
 
     Raises:
         HTTPException: 404 if the account is not found or does not belong to the client.
+
     """
     return await checking_account_service.read(account_id, client_id)
 
@@ -110,8 +113,11 @@ async def update_checking_account(
 
     Raises:
         HTTPException: 404 if the account is not found or does not belong to the client.
+
     """
-    return await checking_account_service.update(account_id, account_in, client_id)
+    return await checking_account_service.update(
+        account_id, account_in, client_id
+    )
 
 
 @router.delete(
@@ -138,5 +144,6 @@ async def delete_checking_account(
 
     Raises:
         HTTPException: 404 if the account is not found or does not belong to the client.
+
     """
     return await checking_account_service.delete(account_id, client_id)

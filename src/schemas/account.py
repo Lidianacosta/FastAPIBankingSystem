@@ -17,6 +17,7 @@ class CheckingAccountIn(BaseModel):
         branch: Branch code.
         limit: Overdraft limit allowed for the checking account.
         withdrawal_limit: Maximum number of withdrawals permitted.
+
     """
 
     balance: float
@@ -38,6 +39,7 @@ class CheckingAccountUpdateIn(BaseModel):
         branch: New branch code.
         limit: New overdraft limit allowed.
         withdrawal_limit: New maximum number of withdrawals permitted.
+
     """
 
     balance: float | None = None

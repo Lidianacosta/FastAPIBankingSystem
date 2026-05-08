@@ -73,7 +73,9 @@ async def test_delete_individual_client_cascade(
     )
 
     async with AsyncSession(async_engine) as session:
-        statement = select(IndividualClient).where(IndividualClient.id == data["id"])
+        statement = select(IndividualClient).where(
+            IndividualClient.id == data["id"]
+        )
         result = await session.exec(statement)
         assert result.first() is None
 

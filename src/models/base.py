@@ -4,7 +4,7 @@ This module defines the SQLAlchemy MetaData with naming conventions
 and the base SQLModel class from which all other models inherit.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlmodel import Field, MetaData, SQLModel
 
@@ -28,9 +28,8 @@ class Base(SQLModel):
     Attributes:
         id: Primary key, auto-incremented integer. None before saving.
         created_at: Timestamp of when the record was created. Defaults to current UTC time.
+
     """
 
     id: int | None = Field(default=None, primary_key=True)
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

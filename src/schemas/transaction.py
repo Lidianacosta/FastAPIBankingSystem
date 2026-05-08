@@ -11,6 +11,7 @@ class DepositIn(BaseModel):
 
     Attributes:
         value: Monetary value to be deposited. Must be positive.
+
     """
 
     value: float
@@ -22,6 +23,7 @@ class WithdrawalIn(BaseModel):
     Attributes:
         value: Monetary value to be withdrawn. Must be positive and
             not exceed the account balance or limits.
+
     """
 
     value: float

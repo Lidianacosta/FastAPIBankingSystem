@@ -1,6 +1,7 @@
+from types import FunctionType
+
 import pytest
 from httpx import AsyncClient, codes
-from types import FunctionType
 
 
 @pytest.mark.parametrize(
@@ -50,7 +51,10 @@ async def test_update_checking_account_fail_for_wrong_owner(
     )
 
     assert response.status_code == codes.FORBIDDEN
-    assert response.json()["detail"] == "This account does not belong to this client"
+    assert (
+        response.json()["detail"]
+        == "This account does not belong to this client"
+    )
 
 
 async def test_update_checking_account_fail_for_not_found(

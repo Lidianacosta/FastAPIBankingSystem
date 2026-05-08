@@ -19,6 +19,7 @@ class Settings(BaseSettings):
         secret_key: Secret key used to sign JWT tokens.
         algorithm: Algorithm used for JWT encoding/decoding.
         access_token_expire_minutes: Expiration time for access tokens.
+
     """
 
     database_url: str = Field(default="sqlite+aiosqlite:///db.sqlite")

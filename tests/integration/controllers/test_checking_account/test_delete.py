@@ -1,10 +1,10 @@
-import pytest
-from httpx import AsyncClient, codes
 from types import FunctionType
-from sqlmodel import select
+
+from httpx import AsyncClient, codes
+from sqlmodel.ext.asyncio.session import AsyncSession
+
 from src.models.account import Account, CheckingAccount
 from src.utils.database import async_engine
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 
 async def test_delete_checking_account_success(

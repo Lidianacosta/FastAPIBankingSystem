@@ -17,6 +17,7 @@ class Transaction(Base, table=True):
         value: Monetary value of the transaction.
         type: String identifier of the transaction type ('deposit', 'withdrawal', etc).
         account_id: Foreign key linking to the Account that owns the transaction.
+
     """
 
     value: float | None = None

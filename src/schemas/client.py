@@ -13,6 +13,7 @@ class ClientIn(BaseModel):
 
     Attributes:
         address: Physical or mailing address of the client.
+
     """
 
     address: str
@@ -27,6 +28,7 @@ class IndividualClientIn(ClientIn):
         name: Full name of the individual.
         cpf: Brazilian natural person registry number (Cadastro de Pessoas Físicas).
         date_of_birth: Birthdate of the individual.
+
     """
 
     name: str
@@ -39,6 +41,7 @@ class ClientUpdateIn(BaseModel):
 
     Attributes:
         address: New physical or mailing address of the client.
+
     """
 
     address: str | None = None
@@ -54,6 +57,7 @@ class IndividualClientUpdateIn(ClientUpdateIn):
         name: New full name of the individual.
         cpf: New Brazilian natural person registry number.
         date_of_birth: New birthdate of the individual.
+
     """
 
     name: str | None = None

@@ -25,6 +25,11 @@ class UserService:
     """
 
     def __init__(self, session: AsyncSessionDep) -> None:
+        """Initialize the user service.
+
+        Args:
+            session: The asynchronous database session.
+        """
         self.session = session
 
     async def create(self, user_in: UserIn) -> User:
@@ -169,7 +174,18 @@ class UserService:
         result = await self.session.exec(statement)
         return result.first()
 
-    async def __get_by_id(self, user_id) -> User:
+    async def __get_by_id(self, user_id: int) -> User:
+        """Internal helper to retrieve a user by ID.
+
+        Args:
+            user_id: The ID of the user to retrieve.
+
+        Returns:
+            The User model instance.
+
+        Raises:
+            HTTPException: 404 if the user is not found.
+        """
         client = await self.session.get(User, user_id)
         if not client:
             raise HTTPException(status_code=404, detail="User not found")

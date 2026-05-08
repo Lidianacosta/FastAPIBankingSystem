@@ -18,6 +18,7 @@ class Client(Base, table=True):
     Attributes:
         address: Physical or mailing address of the client.
         type: The specific type of client (e.g., 'individual', 'corporate').
+
     """
 
     address: str | None = None
@@ -35,6 +36,7 @@ class IndividualClient(Base, table=True):
         cpf: Brazilian natural person registry number (Cadastro de Pessoas Físicas).
         date_of_birth: Birthdate of the individual.
         client_id: Foreign key linking to the base Client record.
+
     """
 
     name: str | None = None

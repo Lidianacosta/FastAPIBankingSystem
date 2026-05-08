@@ -1,3 +1,8 @@
+"""User creation command.
+
+Provides a CLI tool to create the first system user/manager safely.
+"""
+
 import asyncio
 
 import typer
@@ -16,6 +21,14 @@ app = typer.Typer()
 async def _create_user(
     username: str, password: str, email: str | None, full_name: str | None
 ) -> None:
+    """Internal function to handle user creation logic.
+
+    Args:
+        username: Login identifier.
+        password: Plain text password to be hashed.
+        email: Optional contact email.
+        full_name: Optional real name.
+    """
     engine = create_async_engine(settings.database_url)
 
     async with AsyncSession(engine) as session:
@@ -23,7 +36,12 @@ async def _create_user(
             select(User).where(User.username == username)
         )
         if existing.first():
-            typer.secho(f"Error: user '{username}' already exists.", fg=typer.colors.RED, bold=True, err=True)
+            typer.secho(
+                f"Error: user '{username}' already exists.",
+                fg=typer.colors.RED,
+                bold=True,
+                err=True,
+            )
             raise typer.Exit(code=1)
 
         user_in = UserIn(
@@ -48,7 +66,11 @@ async def _create_user(
         await session.refresh(user)
 
     await engine.dispose()
-    typer.secho(f"User '{user.username}' created successfully.", fg=typer.colors.GREEN, bold=True)
+    typer.secho(
+        f"User '{user.username}' created successfully.",
+        fg=typer.colors.GREEN,
+        bold=True,
+    )
 
 
 @app.command()
@@ -64,7 +86,7 @@ def create_user(
     email: str | None = typer.Option(None, help="User email address"),
     full_name: str | None = typer.Option(None, help="User full name"),
 ) -> None:
-    """Create a new user account in the database."""
+    """Create a new user account in the database via CLI."""
     asyncio.run(_create_user(username, password, email, full_name))
 
 

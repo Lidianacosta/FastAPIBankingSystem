@@ -34,6 +34,7 @@ async def read_individual_clients(
 
     Returns:
         A list of individual clients.
+
     """
     return await individual_client_service.read_all(offset=offset, limit=limit)
 
@@ -57,6 +58,7 @@ async def create_individual_client(
 
     Returns:
         The newly created individual client.
+
     """
     return await individual_client_service.create(individual_client)
 
@@ -76,6 +78,7 @@ async def read_individual_client(
 
     Raises:
         HTTPException: 404 if the client is not found.
+
     """
     return await individual_client_service.read(client_id)
 
@@ -98,6 +101,7 @@ async def update_individual_client(
 
     Raises:
         HTTPException: 404 if the client is not found.
+
     """
     return await individual_client_service.update(client_id, individual_client)
 
@@ -121,5 +125,6 @@ async def delete_individual_client(
 
     Raises:
         HTTPException: 404 if the client is not found.
+
     """
     return await individual_client_service.delete(client_id)

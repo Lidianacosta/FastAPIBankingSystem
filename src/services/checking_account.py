@@ -24,9 +24,16 @@ class CheckingAccountService:
 
     Attributes:
         session: The asynchronous database session.
+
     """
 
     def __init__(self, session: AsyncSessionDep) -> None:
+        """Initialize the service with a database session.
+
+        Args:
+            session: The asynchronous database session.
+
+        """
         self.session = session
 
     async def create(
@@ -43,8 +50,8 @@ class CheckingAccountService:
 
         Returns:
             The newly created checking account representation.
-        """
 
+        """
         client = await self.__get_client_by_id(client_id)
 
         account = Account(
@@ -82,6 +89,7 @@ class CheckingAccountService:
 
         Returns:
             A list of checking accounts.
+
         """
         statement = (
             select(CheckingAccount)
@@ -93,7 +101,9 @@ class CheckingAccountService:
         accounts = await self.session.exec(statement)
         return [await self.__to_out(c) for c in accounts.all()]
 
-    async def read(self, account_id: int, client_id: int) -> CheckingAccountOut:
+    async def read(
+        self, account_id: int, client_id: int
+    ) -> CheckingAccountOut:
         """Retrieve a specific checking account by ID.
 
         Enforces that the specified client is the owner of the account.
@@ -107,6 +117,7 @@ class CheckingAccountService:
 
         Raises:
             HTTPException: 404 if not found, 403 if ownership validation fails.
+
         """
         checking = await self.__get_by_id(account_id)
         await self.__verify_ownership(checking, client_id)
@@ -133,6 +144,7 @@ class CheckingAccountService:
 
         Raises:
             HTTPException: 404 if not found, 403 if ownership validation fails.
+
         """
         checking = await self.__get_by_id(account_id)
         await self.__verify_ownership(checking, client_id)
@@ -168,6 +180,7 @@ class CheckingAccountService:
 
         Raises:
             HTTPException: 404 if not found, 403 if ownership validation fails.
+
         """
         checking = await self.__get_by_id(account_id)
         await self.__verify_ownership(checking, client_id)
@@ -178,6 +191,17 @@ class CheckingAccountService:
         await self.session.commit()
 
     async def __to_out(self, checking: CheckingAccount) -> CheckingAccountOut:
+        """Convert a checking account model to an output schema.
+
+        Fetches the associated parent account to include shared fields.
+
+        Args:
+            checking: The checking account model instance.
+
+        Returns:
+            A consolidated CheckingAccountOut schema.
+
+        """
         account = await self.session.get(Account, checking.account_id)
         return CheckingAccountOut(
             **checking.model_dump(),
@@ -189,6 +213,16 @@ class CheckingAccountService:
     async def __verify_ownership(
         self, checking: CheckingAccount, client_id: int
     ) -> None:
+        """Verify that a checking account belongs to a specific client.
+
+        Args:
+            checking: The checking account model to verify.
+            client_id: The expected client owner ID.
+
+        Raises:
+            HTTPException: 403 if ownership validation fails.
+
+        """
         account = await self.session.get(Account, checking.account_id)
         if not account or account.client_id != client_id:
             raise HTTPException(
@@ -197,12 +231,38 @@ class CheckingAccountService:
             )
 
     async def __get_by_id(self, account_id: int) -> CheckingAccount:
+        """Retrieve a checking account by ID or raise 404.
+
+        Args:
+            account_id: The primary key of the checking account.
+
+        Returns:
+            The found CheckingAccount instance.
+
+        Raises:
+            HTTPException: 404 if not found.
+
+        """
         account = await self.session.get(CheckingAccount, account_id)
         if not account:
-            raise HTTPException(status_code=404, detail="Checking account not found")
+            raise HTTPException(
+                status_code=404, detail="Checking account not found"
+            )
         return account
 
     async def __get_client_by_id(self, client_id: int) -> Client:
+        """Retrieve a client by ID or raise 404.
+
+        Args:
+            client_id: The primary key of the client.
+
+        Returns:
+            The found Client instance.
+
+        Raises:
+            HTTPException: 404 if not found.
+
+        """
         client = await self.session.get(Client, client_id)
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
