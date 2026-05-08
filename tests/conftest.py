@@ -8,7 +8,6 @@ from src.main import app
 from src.models.user import User
 from src.utils.password import get_password_hash
 
-# settings.database_url = "sqlite+aiosqlite:///tests.db"
 settings.database_url = "sqlite+aiosqlite:///:memory:"
 settings.environment = "testing"
 
@@ -72,12 +71,13 @@ async def access_token(client: AsyncClient):
             "password": plain_password,
             "grant_type": "password",
         },
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        headers={
+            "Authorization": f"Bearer token",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
     )
 
     if response.status_code != 200:
-        raise Exception(
-            f"Auth failed: {response.status_code} - {response.text}"
-        )
+        raise Exception(f"Auth failed: {response.status_code} - {response.text}")
 
     return response.json()["access_token"]

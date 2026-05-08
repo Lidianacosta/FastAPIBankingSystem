@@ -5,7 +5,6 @@ from httpx import AsyncClient, codes
 async def test_create_individual_client_success(
     client: AsyncClient, access_token: str, client_url: str
 ):
-    # 1. Preparação dos dados (Corrigido para os nomes de campos reais)
     payload = {
         "name": "Fulano de Tal",
         "cpf": "12345678901",
@@ -13,14 +12,12 @@ async def test_create_individual_client_success(
         "date_of_birth": "1990-01-01",
     }
 
-    # 2. Execução da ação
     response = await client.post(
         client_url,
         json=payload,
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
-    # 3. Verificação (Assertions)
     assert response.status_code == codes.CREATED
     data = response.json()
     assert data["name"] == payload["name"]
@@ -31,7 +28,6 @@ async def test_create_individual_client_success(
 async def test_create_individual_client_fail_for_nunique_cpf(
     client: AsyncClient, access_token: str, client_url: str
 ):
-    # 1. Preparação dos dados (Corrigido para os nomes de campos reais)
     payload = {
         "name": "Fulano de Tal",
         "cpf": "12345678901",
@@ -39,7 +35,6 @@ async def test_create_individual_client_fail_for_nunique_cpf(
         "date_of_birth": "1990-01-01",
     }
 
-    # 2. Execução da ação
     await client.post(
         client_url,
         json=payload,
@@ -52,7 +47,6 @@ async def test_create_individual_client_fail_for_nunique_cpf(
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
-    # 3. Verificação (Assertions)
     assert response.status_code == codes.BAD_REQUEST
     data = response.json()
     assert data["detail"] == "CPF already registered"
@@ -62,17 +56,14 @@ async def test_create_individual_client_fail_for_nunique_cpf(
 async def test_create_individual_client_fail_for_missing_fields(
     client: AsyncClient, access_token: str, field, client_url: str
 ):
-    # 1. Preparação dos dados (Corrigido para os nomes de campos reais)
     payload = {}
 
-    # 2. Execução da ação
     response = await client.post(
         client_url,
         json=payload,
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
-    # 3. Verificação (Assertions)
     assert response.status_code == codes.UNPROCESSABLE_ENTITY
     data = response.json()
     assert {
