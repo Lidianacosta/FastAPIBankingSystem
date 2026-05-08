@@ -6,7 +6,7 @@ All endpoints require authentication.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 
 from src.schemas.client import IndividualClientIn, IndividualClientUpdateIn
 from src.services.individual_client import IndividualClientServiceDep
@@ -38,7 +38,11 @@ async def read_individual_clients(
     return await individual_client_service.read_all(offset=offset, limit=limit)
 
 
-@router.post("/", response_model=IndividualClientOut)
+@router.post(
+    "/",
+    response_model=IndividualClientOut,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_individual_client(
     individual_client: IndividualClientIn,
     individual_client_service: IndividualClientServiceDep,
@@ -98,7 +102,9 @@ async def update_individual_client(
     return await individual_client_service.update(client_id, individual_client)
 
 
-@router.delete("/{client_id}", response_model=None)
+@router.delete(
+    "/{client_id}", response_model=None, status_code=status.HTTP_204_NO_CONTENT
+)
 async def delete_individual_client(
     client_id: int, individual_client_service: IndividualClientServiceDep
 ):

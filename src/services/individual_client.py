@@ -127,7 +127,7 @@ class IndividualClientService:
 
     async def update(
         self, client_id: int, client_in: IndividualClientUpdateIn
-    ) -> IndividualClient:
+    ) -> IndividualClientOut:
         """Update an existing individual client.
 
         Updates both the `IndividualClient` specific fields and the base
@@ -153,18 +153,21 @@ class IndividualClientService:
             if attr in individual_fields:
                 setattr(individual, attr, value)
 
-        if individual.client_id:
-            client = await self.session.get(Client, individual.client_id)
-            if client:
-                for attr, value in data.items():
-                    if attr in client_fields:
-                        setattr(client, attr, value)
-                self.session.add(client)
+        client = await self.__get_client_by_id(individual.client_id)
+
+        for attr, value in data.items():
+            if attr in client_fields:
+                setattr(client, attr, value)
+        self.session.add(client)
 
         self.session.add(individual)
         await self.session.commit()
+        await self.session.refresh(client)
         await self.session.refresh(individual)
-        return individual
+
+        return IndividualClientOut(
+            **individual.model_dump(), address=client.address or ""
+        )
 
     async def delete(self, client_id: int) -> None:
         """Delete an individual client and its parent client record.
@@ -188,6 +191,13 @@ class IndividualClientService:
             raise HTTPException(
                 status_code=404, detail="Individual client not found"
             )
+
+        return client
+
+    async def __get_client_by_id(self, client_id) -> Client:
+        client = await self.session.get(Client, client_id)
+        if not client:
+            raise HTTPException(status_code=404, detail="client not found")
         return client
 
 
