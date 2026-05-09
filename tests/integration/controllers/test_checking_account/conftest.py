@@ -45,6 +45,7 @@ async def populate_checking_account_table(
                     "balance": 1000,
                     "limit": 1000,
                     "withdrawal_limit": 500,
+                    "daily_withdrawal_limit": 1000.0,
                 },
                 headers=headers,
             )
@@ -56,6 +57,7 @@ async def populate_checking_account_table(
                     "balance": 5000,
                     "limit": 1000,
                     "withdrawal_limit": 1000,
+                    "daily_withdrawal_limit": 1000.0,
                 },
                 headers=headers,
             )

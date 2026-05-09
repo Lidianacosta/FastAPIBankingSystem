@@ -27,6 +27,7 @@ async def created_account(
         "balance": 1000.0,
         "limit": 500.0,
         "withdrawal_limit": 3,
+        "daily_withdrawal_limit": 1000.0,
     }
     response = await client.post(
         f"/api/individual-clients/{client_id}/checking-accounts/",

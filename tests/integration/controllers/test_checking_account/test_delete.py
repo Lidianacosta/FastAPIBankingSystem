@@ -18,6 +18,7 @@ async def test_delete_checking_account_success(
         "balance": 100,
         "limit": 100,
         "withdrawal_limit": 5,
+        "daily_withdrawal_limit": 1000.0,
     }
     resp = await client.post(
         get_checking_accounts_url(client_id),
@@ -64,6 +65,7 @@ async def test_delete_checking_account_cascade(
         "balance": 777,
         "limit": 777,
         "withdrawal_limit": 7,
+        "daily_withdrawal_limit": 1000.0,
     }
     resp = await client.post(
         get_checking_accounts_url(client_id),

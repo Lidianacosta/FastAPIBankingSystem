@@ -73,6 +73,7 @@ class CheckingAccountService:
         checking_account = CheckingAccount(
             limit=account_in.limit,
             withdrawal_limit=account_in.withdrawal_limit,
+            daily_withdrawal_limit=account_in.daily_withdrawal_limit,
             account_id=account.id,
         )
         self.session.add(checking_account)

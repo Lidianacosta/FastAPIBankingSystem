@@ -115,6 +115,7 @@ async def test_delete_individual_client_full_cascade(
         "balance": 1000,
         "limit": 500,
         "withdrawal_limit": 3,
+        "daily_withdrawal_limit": 1000.0,
     }
     resp_account = await client.post(
         f"{client_url}{client_id}/checking-accounts/",

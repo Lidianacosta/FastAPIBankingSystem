@@ -15,12 +15,14 @@ class CheckingAccountIn(BaseModel):
         balance: Initial monetary balance of the account.
         limit: Overdraft limit allowed for the checking account.
         withdrawal_limit: Maximum number of withdrawals permitted.
+        daily_withdrawal_limit: Maximum total value of withdrawals permitted per day.
 
     """
 
     balance: float
     limit: float
     withdrawal_limit: int
+    daily_withdrawal_limit: float
 
 
 class CheckingAccountUpdateIn(BaseModel):
@@ -33,9 +35,11 @@ class CheckingAccountUpdateIn(BaseModel):
         balance: New monetary balance of the account.
         limit: New overdraft limit allowed.
         withdrawal_limit: New maximum number of withdrawals permitted.
+        daily_withdrawal_limit: New maximum total value of withdrawals permitted per day.
 
     """
 
     balance: float | None = None
     limit: float | None = None
     withdrawal_limit: int | None = None
+    daily_withdrawal_limit: float | None = None

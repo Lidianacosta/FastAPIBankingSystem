@@ -69,7 +69,24 @@ async def test_withdrawal_fail_daily_limit(
     response = await client.post(url, json={"value": 10}, headers=headers)
 
     assert response.status_code == codes.BAD_REQUEST
-    assert "Daily withdrawal limit" in response.json()["detail"]
+    assert "Daily withdrawal count limit" in response.json()["detail"]
+
+
+async def test_withdrawal_fail_daily_amount_limit(
+    client: AsyncClient,
+    access_token: str,
+    created_account: dict,
+    withdrawal_url: Callable[[int], str],
+):
+    account_id = created_account["id"]
+    headers = {"Authorization": f"Bearer {access_token}"}
+    url = withdrawal_url(account_id)
+
+    # Daily amount limit is 1000.0
+    response = await client.post(url, json={"value": 1001.0}, headers=headers)
+
+    assert response.status_code == codes.BAD_REQUEST
+    assert "Daily withdrawal amount limit reached" in response.json()["detail"]
 
 
 async def test_delete_withdrawal_reverts_balance(

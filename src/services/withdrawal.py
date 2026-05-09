@@ -41,8 +41,8 @@ class WithdrawalService:
         """Process a new withdrawal transaction for an account.
 
         Ensures the withdrawal does not exceed available balance (plus limits)
-        and respects the daily transaction limit for withdrawals. Decreases
-        the parent `Account` balance upon successful validation.
+        and respects both the daily transaction count limit and the daily
+        total value limit.
 
         Args:
             transaction_in: Withdrawal schema containing the value.
@@ -62,8 +62,8 @@ class WithdrawalService:
             raise HTTPException(status_code=404, detail="Account not found")
 
         balance = account.balance or 0
-        limit = checking.limit or 0
-        available = balance + limit
+        overdraft_limit = checking.limit or 0
+        available = balance + overdraft_limit
 
         if transaction_in.value > available:
             raise HTTPException(
@@ -84,15 +84,29 @@ class WithdrawalService:
             .where(Transaction.created_at < today_end)
         )
         result = await self.session.exec(statement)
-        withdrawal_count = len(result.all())
+        todays_withdrawals = result.all()
 
         if (
             checking.withdrawal_limit
-            and withdrawal_count >= checking.withdrawal_limit
+            and len(todays_withdrawals) >= checking.withdrawal_limit
         ):
             raise HTTPException(
                 status_code=400,
-                detail=f"Daily withdrawal limit of {checking.withdrawal_limit} reached",
+                detail=f"Daily withdrawal count limit of {checking.withdrawal_limit} reached",
+            )
+
+        current_daily_total = sum(t.value or 0.0 for t in todays_withdrawals)
+        if (
+            checking.daily_withdrawal_limit
+            and (current_daily_total + transaction_in.value)
+            > checking.daily_withdrawal_limit
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"Daily withdrawal amount limit reached. "
+                    f"Remaining: {checking.daily_withdrawal_limit - current_daily_total}"
+                ),
             )
 
         account.balance = balance - transaction_in.value

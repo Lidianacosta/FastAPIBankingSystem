@@ -13,6 +13,7 @@ async def test_create_account_success(
         "balance": 1000,
         "limit": 1000,
         "withdrawal_limit": 500,
+        "daily_withdrawal_limit": 1000.0,
     }
 
     response = await client.post(
@@ -33,6 +34,7 @@ async def test_create_account_fail_for_invalid_client_id(
         "balance": 1000,
         "limit": 1000,
         "withdrawal_limit": 500,
+        "daily_withdrawal_limit": 1000.0,
     }
 
     response = await client.post(

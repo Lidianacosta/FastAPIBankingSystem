@@ -38,10 +38,12 @@ class CheckingAccount(Base, table=True):
     Attributes:
         limit: Overdraft limit allowed for the checking account.
         withdrawal_limit: Maximum number of withdrawals permitted per day/period.
+        daily_withdrawal_limit: Maximum total value of withdrawals permitted per day.
         account_id: Foreign key linking to the base Account record.
 
     """
 
     limit: float | None = None
     withdrawal_limit: int | None = None
+    daily_withdrawal_limit: float | None = None
     account_id: int | None = Field(default=None, foreign_key="account.id")
