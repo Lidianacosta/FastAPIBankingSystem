@@ -12,17 +12,16 @@ FROM python:3.12-slim-bookworm
 
 WORKDIR /app
 
-RUN useradd -m -u 1000 appuser && \
-    chown appuser:appuser /app
+RUN useradd -m -u 1000 appuser
 
-COPY --from=builder --chown=appuser:appuser --chmod=555 /app/.venv /app/.venv
+COPY --from=builder --chmod=555 /app/.venv /app/.venv
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-COPY --chown=appuser:appuser --chmod=555 src/ ./src/
-COPY --chown=appuser:appuser --chmod=555 migrations/ ./migrations/
-COPY --chown=appuser:appuser --chmod=555 alembic.ini pyproject.toml uv.lock ./
-COPY --chown=appuser:appuser --chmod=555 scripts/ ./scripts/
+COPY --chmod=555 src/ ./src/
+COPY --chmod=555 migrations/ ./migrations/
+COPY --chmod=555 alembic.ini pyproject.toml uv.lock ./
+COPY --chmod=555 scripts/ ./scripts/
 
 USER appuser
 
