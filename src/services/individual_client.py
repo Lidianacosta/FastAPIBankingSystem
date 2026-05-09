@@ -9,9 +9,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException
 from sqlmodel import select
 
-from src.models.account import Account, CheckingAccount
 from src.models.client import Client, IndividualClient
-from src.models.transaction import Transaction
 from src.schemas.client import IndividualClientIn, IndividualClientUpdateIn
 from src.utils.database import AsyncSessionDep
 from src.views.client import IndividualClientOut
@@ -195,7 +193,7 @@ class IndividualClientService:
         )
 
     async def delete(self, client_id: int) -> None:
-        """Delete an individual client and all associated accounts and transactions.
+        """Delete an individual client and all associated records via ORM cascade.
 
         Args:
             client_id: The ID of the individual client to delete.
@@ -205,36 +203,9 @@ class IndividualClientService:
 
         """
         individual = await self.__get_by_id(client_id)
-        client_id_fk = individual.client_id
-
-        stmt_accounts = select(Account).where(
-            Account.client_id == client_id_fk
-        )
-        result_accounts = await self.session.exec(stmt_accounts)
-        accounts = result_accounts.all()
-
-        for account in accounts:
-            stmt_checking = select(CheckingAccount).where(
-                CheckingAccount.account_id == account.id
-            )
-            result_checking = await self.session.exec(stmt_checking)
-            checking = result_checking.first()
-            if checking:
-                await self.session.delete(checking)
-
-            stmt_transactions = select(Transaction).where(
-                Transaction.account_id == account.id
-            )
-            result_transactions = await self.session.exec(stmt_transactions)
-            transactions = result_transactions.all()
-            for transaction in transactions:
-                await self.session.delete(transaction)
-
-            await self.session.delete(account)
+        parent_client = await self.session.get(Client, individual.client_id)
 
         await self.session.delete(individual)
-
-        parent_client = await self.session.get(Client, client_id_fk)
         if parent_client:
             await self.session.delete(parent_client)
 

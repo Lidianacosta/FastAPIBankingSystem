@@ -3,9 +3,15 @@
 Includes the base `Account` model and the specialized `CheckingAccount` model.
 """
 
-from sqlmodel import Field
+from typing import TYPE_CHECKING
+
+from sqlmodel import Field, Relationship
 
 from src.models.base import Base
+
+if TYPE_CHECKING:
+    from src.models.client import Client
+    from src.models.transaction import Transaction
 
 
 class Account(Base, table=True):
@@ -28,6 +34,16 @@ class Account(Base, table=True):
     type: str = Field(default="account")
     client_id: int | None = Field(default=None, foreign_key="client.id")
 
+    client: "Client" = Relationship(back_populates="accounts")
+    checking_account: "CheckingAccount" = Relationship(
+        back_populates="account",
+        sa_relationship_kwargs={"cascade": "all, delete", "uselist": False},
+    )
+    transactions: list["Transaction"] = Relationship(
+        back_populates="account",
+        sa_relationship_kwargs={"cascade": "all, delete"},
+    )
+
 
 class CheckingAccount(Base, table=True):
     """Checking Account database model.
@@ -47,3 +63,5 @@ class CheckingAccount(Base, table=True):
     withdrawal_limit: int | None = None
     daily_withdrawal_limit: float | None = None
     account_id: int | None = Field(default=None, foreign_key="account.id")
+
+    account: Account = Relationship(back_populates="checking_account")
