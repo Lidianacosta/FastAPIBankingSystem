@@ -951,8 +951,10 @@ environments:
         host: 127.0.0.1:8000
         oauth2ClientId: clientId
         oauth2ClientSecret: clientSecret
-        oauth2Username: YOUR_USERNAME
-        oauth2Password: YOUR_PASSWORD
+        oauth2Username: "{{ _.username }}"
+        oauth2Password: "{{ _.password }}"
+        username: YOUR_USERNAME
+        password: YOUR_PASSWORD
         client_id: 1
         account_id: 1
         withdrawal_id: 1
