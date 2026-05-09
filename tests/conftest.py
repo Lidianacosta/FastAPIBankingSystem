@@ -85,7 +85,7 @@ async def access_token(client: AsyncClient):
     )
 
     if response.status_code != 200:
-        raise Exception(
+        raise RuntimeError(
             f"Auth failed: {response.status_code} - {response.text}"
         )
 
