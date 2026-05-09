@@ -161,7 +161,6 @@ class IndividualClientService:
         individual = await self.__get_by_id(client_id)
         data = client_in.model_dump(exclude_unset=True)
 
-        # Check CPF uniqueness if it's being updated
         if "cpf" in data and data["cpf"] != individual.cpf:
             statement = select(IndividualClient).where(
                 IndividualClient.cpf == data["cpf"]
@@ -208,7 +207,6 @@ class IndividualClientService:
         individual = await self.__get_by_id(client_id)
         client_id_fk = individual.client_id
 
-        # Delete all accounts and transactions associated with this client
         stmt_accounts = select(Account).where(
             Account.client_id == client_id_fk
         )
@@ -216,7 +214,6 @@ class IndividualClientService:
         accounts = result_accounts.all()
 
         for account in accounts:
-            # Delete CheckingAccount linked to this account
             stmt_checking = select(CheckingAccount).where(
                 CheckingAccount.account_id == account.id
             )
@@ -225,7 +222,6 @@ class IndividualClientService:
             if checking:
                 await self.session.delete(checking)
 
-            # Delete Transactions linked to this account
             stmt_transactions = select(Transaction).where(
                 Transaction.account_id == account.id
             )
@@ -234,13 +230,10 @@ class IndividualClientService:
             for transaction in transactions:
                 await self.session.delete(transaction)
 
-            # Delete the base Account
             await self.session.delete(account)
 
-        # Delete the specialized individual record
         await self.session.delete(individual)
 
-        # Delete the base client record
         parent_client = await self.session.get(Client, client_id_fk)
         if parent_client:
             await self.session.delete(parent_client)
