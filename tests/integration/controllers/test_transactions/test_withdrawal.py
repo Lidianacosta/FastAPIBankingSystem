@@ -82,7 +82,6 @@ async def test_withdrawal_fail_daily_amount_limit(
     headers = {"Authorization": f"Bearer {access_token}"}
     url = withdrawal_url(account_id)
 
-    # Daily amount limit is 1000.0
     response = await client.post(url, json={"value": 1001.0}, headers=headers)
 
     assert response.status_code == codes.BAD_REQUEST

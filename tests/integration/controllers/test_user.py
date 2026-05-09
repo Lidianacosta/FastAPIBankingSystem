@@ -32,7 +32,6 @@ async def test_update_user_me_success(client: AsyncClient, access_token: str):
 async def test_update_user_me_password_success(
     client: AsyncClient, access_token: str
 ):
-    # Atualiza a senha
     response = await client.patch(
         "/api/users/me/",
         json={"plain_password": "new_very_secure_password"},
@@ -40,7 +39,6 @@ async def test_update_user_me_password_success(
     )
     assert response.status_code == codes.OK
 
-    # Tenta logar com a nova senha para garantir que funcionou
     login_response = await client.post(
         "/api/auth/token",
         data={
