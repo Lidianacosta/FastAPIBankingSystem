@@ -953,8 +953,6 @@ environments:
         oauth2ClientSecret: clientSecret
         oauth2Username: "{{ _.username }}"
         oauth2Password: "{{ _.password }}"
-        username: YOUR_USERNAME
-        password: YOUR_PASSWORD
         client_id: 1
         account_id: 1
         withdrawal_id: 1
