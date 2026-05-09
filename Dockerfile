@@ -12,11 +12,19 @@ FROM python:3.12-slim-bookworm
 
 WORKDIR /app
 
-COPY --from=builder /app/.venv /app/.venv
+RUN useradd -m -u 1000 appuser && \
+    chown appuser:appuser /app
+
+COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-COPY . .
+COPY --chown=appuser:appuser src/ ./src/
+COPY --chown=appuser:appuser migrations/ ./migrations/
+COPY --chown=appuser:appuser alembic.ini pyproject.toml uv.lock ./
+COPY --chown=appuser:appuser scripts/ ./scripts/
+
+USER appuser
 
 EXPOSE 8000
 
