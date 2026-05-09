@@ -25,7 +25,7 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@34e1148c96885b84ce963966bbcc8dd0ffba2907
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Install uv
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
@@ -33,7 +33,7 @@ jobs:
           enable-cache: true
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@a26af6904029667666629302957144f8f4090488
+        uses: actions/setup-python@3975257e7a4c273d10292cd762d69a013bb139c1
         with:
           python-version: "3.12"
 
