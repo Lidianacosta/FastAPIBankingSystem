@@ -11,8 +11,6 @@ async def test_create_account_success(
 ):
     payload = {
         "balance": 1000,
-        "number": 1,
-        "branch": "111",
         "limit": 1000,
         "withdrawal_limit": 500,
     }
@@ -33,8 +31,6 @@ async def test_create_account_fail_for_invalid_client_id(
 ):
     payload = {
         "balance": 1000,
-        "number": 1,
-        "branch": "111",
         "limit": 1000,
         "withdrawal_limit": 500,
     }

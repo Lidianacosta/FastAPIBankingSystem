@@ -113,8 +113,6 @@ async def test_delete_individual_client_full_cascade(
 
     account_payload = {
         "balance": 1000,
-        "number": 123,
-        "branch": "001",
         "limit": 500,
         "withdrawal_limit": 3,
     }

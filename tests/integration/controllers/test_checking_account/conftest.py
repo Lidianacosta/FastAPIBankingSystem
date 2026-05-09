@@ -43,8 +43,6 @@ async def populate_checking_account_table(
                 get_checking_accounts_url(created_client["id"]),
                 json={
                     "balance": 1000,
-                    "number": 1,
-                    "branch": "111",
                     "limit": 1000,
                     "withdrawal_limit": 500,
                 },
@@ -56,8 +54,6 @@ async def populate_checking_account_table(
                 get_checking_accounts_url(created_client["id"]),
                 json={
                     "balance": 5000,
-                    "number": 1,
-                    "branch": "222",
                     "limit": 1000,
                     "withdrawal_limit": 1000,
                 },

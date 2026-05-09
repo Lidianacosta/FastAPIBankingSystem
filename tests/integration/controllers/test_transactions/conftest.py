@@ -25,8 +25,6 @@ async def created_account(
     client_id = created_client["id"]
     payload = {
         "balance": 1000.0,
-        "number": 123,
-        "branch": "001",
         "limit": 500.0,
         "withdrawal_limit": 3,
     }

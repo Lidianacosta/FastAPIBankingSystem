@@ -7,6 +7,7 @@ safely handling the relationship between `Account` and `CheckingAccount`.
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
+from sqlalchemy import func
 from sqlmodel import col, select
 
 from src.models.account import Account, CheckingAccount
@@ -40,10 +41,11 @@ class CheckingAccountService:
     async def create(
         self, account_in: CheckingAccountIn, client_id: int
     ) -> CheckingAccountOut:
-        """Create a new checking account.
+        """Create a new checking account with auto-generated details.
 
-        Creates the generic `Account` record first to establish balance and routing,
-        then associates it with the `CheckingAccount` specific limits.
+        Generates a unique account number and sets a default branch code.
+        Creates the generic `Account` record first, then associates it
+        with the `CheckingAccount` specialized limits.
 
         Args:
             account_in: Schema with account creation details.
@@ -55,10 +57,13 @@ class CheckingAccountService:
         """
         client = await self.__get_client_by_id(client_id)
 
+        next_number = await self.__generate_next_account_number()
+        default_branch = "0001"
+
         account = Account(
             balance=account_in.balance,
-            number=account_in.number,
-            branch=account_in.branch,
+            number=next_number,
+            branch=default_branch,
             client_id=client.id,
             type="checking",
         )
@@ -186,7 +191,6 @@ class CheckingAccountService:
         checking = await self.__get_by_id(account_id)
         await self.__verify_ownership(checking, client_id)
 
-        # Delete Transactions linked to the base account
         stmt_transactions = select(Transaction).where(
             Transaction.account_id == checking.account_id
         )
@@ -278,6 +282,21 @@ class CheckingAccountService:
         if not client:
             raise HTTPException(status_code=404, detail="Client not found")
         return client
+
+    async def __generate_next_account_number(self) -> int:
+        """Calculate the next available account number.
+
+        Finds the current maximum number in the Account table and
+        increments it by 1. Starts at 1001 if no accounts exist.
+
+        Returns:
+            The next unique account number.
+
+        """
+        statement = select(func.max(Account.number))
+        result = await self.session.exec(statement)
+        max_number = result.first()
+        return (max_number or 1000) + 1
 
 
 CheckingAccountServiceDep = Annotated[

@@ -16,8 +16,6 @@ async def test_delete_checking_account_success(
     client_id = created_client["id"]
     payload = {
         "balance": 100,
-        "number": 99,
-        "branch": "99",
         "limit": 100,
         "withdrawal_limit": 5,
     }
@@ -64,8 +62,6 @@ async def test_delete_checking_account_cascade(
     client_id = created_client["id"]
     payload = {
         "balance": 777,
-        "number": 777,
-        "branch": "777",
         "limit": 777,
         "withdrawal_limit": 7,
     }

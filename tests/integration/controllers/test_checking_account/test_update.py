@@ -8,7 +8,6 @@ from httpx import AsyncClient, codes
     "field,value",
     [
         ("balance", 2000.0),
-        ("branch", "999"),
         ("limit", 5000.0),
         ("withdrawal_limit", 10),
     ],
@@ -20,7 +19,7 @@ async def test_update_checking_account_fields(
     created_client: dict,
     accounts: list[dict],
     field: str,
-    value: any,
+    value: int,
 ):
     account_id = accounts[0]["id"]
     client_id = created_client["id"]
