@@ -16,7 +16,6 @@ from src.utils.password import get_password_hash
 
 @pytest_asyncio.fixture(scope="function")
 async def db():
-    """Create all tables and drop all after usage."""
     if "sqlite" in settings.database_url:
         settings.database_url = "sqlite+aiosqlite:///:memory:"
 
@@ -28,6 +27,8 @@ async def db():
 
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.drop_all)
+
+    await async_engine.dispose()
 
 
 @pytest_asyncio.fixture
@@ -51,6 +52,8 @@ async def client(db):
     ) as client:
         yield client
 
+    app.dependency_overrides.clear()
+
 
 @pytest_asyncio.fixture
 async def access_token(client: AsyncClient):
@@ -64,6 +67,7 @@ async def access_token(client: AsyncClient):
         session.add(test_user)
         await session.commit()
         await session.refresh(test_user)
+        await session.close()
 
     response = await client.post(
         "/api/auth/token",
