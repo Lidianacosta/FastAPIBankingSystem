@@ -1,5 +1,7 @@
 # FastAPI Banking System 🏦
 
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Lidianacosta_FastAPIBankingSystem)](https://sonarcloud.io/summary/new_code?id=Lidianacosta_FastAPIBankingSystem)
+
 Um sistema bancário RESTful completo desenvolvido com **FastAPI**, focado em abstrair a alta performance de requisições assíncronas para o gerenciamento de clientes, contas correntes e transações financeiras garantindo uma segurança robusta via autenticação JWT.
 
 ## 🚀 Funcionalidades Principais
