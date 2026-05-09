@@ -78,3 +78,19 @@ async def test_delete_deposit_reverts_balance(
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert resp_account.json()["balance"] == initial_balance
+
+
+async def test_deposit_fail_negative_value(
+    client: AsyncClient,
+    access_token: str,
+    created_account: dict,
+    deposit_url: Callable[[int], str],
+):
+    account_id = created_account["id"]
+    response = await client.post(
+        deposit_url(account_id),
+        json={"value": -50.0},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == codes.UNPROCESSABLE_ENTITY

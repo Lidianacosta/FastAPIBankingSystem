@@ -3,7 +3,7 @@
 Defines the data validation schemas for financial transactions.
 """
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class DepositIn(BaseModel):
@@ -14,7 +14,7 @@ class DepositIn(BaseModel):
 
     """
 
-    value: float
+    value: float = Field(..., gt=0)
 
 
 class WithdrawalIn(BaseModel):
@@ -26,4 +26,4 @@ class WithdrawalIn(BaseModel):
 
     """
 
-    value: float
+    value: float = Field(..., gt=0)

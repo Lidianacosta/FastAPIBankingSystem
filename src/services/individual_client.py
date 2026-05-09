@@ -144,6 +144,7 @@ class IndividualClientService:
 
         Updates both the `IndividualClient` specific fields and the base
         `Client` fields (such as address) based on the provided schema.
+        If the CPF is being updated, ensures it is not already in use.
 
         Args:
             client_id: The ID of the client to update.
@@ -154,10 +155,22 @@ class IndividualClientService:
 
         Raises:
             HTTPException: 404 if the client is not found.
+            HTTPException: 400 if the new CPF is already registered.
 
         """
         individual = await self.__get_by_id(client_id)
         data = client_in.model_dump(exclude_unset=True)
+
+        # Check CPF uniqueness if it's being updated
+        if "cpf" in data and data["cpf"] != individual.cpf:
+            statement = select(IndividualClient).where(
+                IndividualClient.cpf == data["cpf"]
+            )
+            result = await self.session.exec(statement)
+            if result.first():
+                raise HTTPException(
+                    status_code=400, detail="CPF already registered"
+                )
 
         individual_fields = IndividualClient.model_fields.keys()
         client_fields = Client.model_fields.keys()
