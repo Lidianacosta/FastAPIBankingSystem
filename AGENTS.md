@@ -76,7 +76,7 @@ O projeto segue um padrão MVC/Service orientado a serviços:
 O projeto utiliza **GitHub Actions** para garantir a qualidade contínua do código. A cada `push` ou `pull request` na branch `main`, a pipeline executa automaticamente:
 - **Linting & Formatting:** Via `Ruff`.
 - **Type Checking:** Via `Mypy`.
-- **Automated Tests:** Via `Pytest`.
+- **Automated Tests:** Via `Pytest` (executados contra uma instância real de **PostgreSQL** em container para máxima fidelidade com a produção).
 
 Certifique-se de que todos os passos passem localmente antes de enviar seu código!
 

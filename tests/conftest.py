@@ -17,7 +17,9 @@ from src.utils.password import get_password_hash
 @pytest_asyncio.fixture(scope="function")
 async def db():
     """Create all tables and drop all after usage."""
-    settings.database_url = "sqlite+aiosqlite:///:memory:"
+    if "sqlite" in settings.database_url:
+        settings.database_url = "sqlite+aiosqlite:///:memory:"
+
     settings.environment = "testing"
 
     await async_create_db_and_tables()

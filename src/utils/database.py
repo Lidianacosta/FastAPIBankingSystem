@@ -12,11 +12,11 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.core.config import settings
 
-if settings.environment != "production":
+if "sqlite" in settings.database_url:
     connect_args = {"check_same_thread": False}
     echo = False
 else:
-    echo = True
+    echo = settings.environment != "production"
     connect_args = {}
 
 
