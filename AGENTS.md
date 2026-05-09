@@ -82,6 +82,16 @@ Certifique-se de que todos os passos passem localmente antes de enviar seu códi
 
 ---
 
+## 🚀 Deployment
+
+O deploy da aplicação é realizado na plataforma **Render** utilizando **Docker**.
+- **Infraestrutura:** Definida no arquivo `render.yaml` (Blueprint).
+- **Banco de Dados:** PostgreSQL (gerenciado pela Render).
+- **Processo:** O `Dockerfile` realiza o build otimizado com `uv`, executa as migrações do Alembic e inicia o servidor Uvicorn.
+- **Configuração:** O validador em `src/core/config.py` converte automaticamente a URL do banco para o driver assíncrono `postgresql+asyncpg://`.
+
+---
+
 ## 🗄️ Banco de Dados e Migrações
 
 ```bash
