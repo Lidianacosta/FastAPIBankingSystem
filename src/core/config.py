@@ -4,7 +4,7 @@ Defines Pydantic settings used to configure the FastAPI application,
 including database URLs, environment contexts, and security keys.
 """
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,6 +23,14 @@ class Settings(BaseSettings):
     """
 
     database_url: str = Field(default="sqlite+aiosqlite:///db.sqlite")
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def assemble_db_url(cls, v: str) -> str:
+        """Fix postgres scheme for SQLAlchemy compatibility."""
+        if v and v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql+asyncpg://", 1)
+        return v
 
     environment: str = Field(default="production")
 
