@@ -11,6 +11,7 @@ from sqlmodel import col, select
 
 from src.models.account import Account, CheckingAccount
 from src.models.client import Client
+from src.models.transaction import Transaction
 from src.schemas.account import CheckingAccountIn, CheckingAccountUpdateIn
 from src.utils.database import AsyncSessionDep
 from src.views.account import CheckingAccountOut
@@ -172,7 +173,7 @@ class CheckingAccountService:
         return await self.__to_out(checking)
 
     async def delete(self, account_id: int, client_id: int) -> None:
-        """Delete a checking account and its parent account record.
+        """Delete a checking account, its parent account, and all associated transactions.
 
         Args:
             account_id: The ID of the checking account to delete.
@@ -184,6 +185,16 @@ class CheckingAccountService:
         """
         checking = await self.__get_by_id(account_id)
         await self.__verify_ownership(checking, client_id)
+
+        # Delete Transactions linked to the base account
+        stmt_transactions = select(Transaction).where(
+            Transaction.account_id == checking.account_id
+        )
+        result_transactions = await self.session.exec(stmt_transactions)
+        transactions = result_transactions.all()
+        for transaction in transactions:
+            await self.session.delete(transaction)
+
         parent_account = await self.session.get(Account, checking.account_id)
         await self.session.delete(checking)
         if parent_account:

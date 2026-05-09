@@ -9,7 +9,9 @@ from typing import Annotated
 from fastapi import Depends, HTTPException
 from sqlmodel import select
 
+from src.models.account import Account, CheckingAccount
 from src.models.client import Client, IndividualClient
+from src.models.transaction import Transaction
 from src.schemas.client import IndividualClientIn, IndividualClientUpdateIn
 from src.utils.database import AsyncSessionDep
 from src.views.client import IndividualClientOut
@@ -181,7 +183,7 @@ class IndividualClientService:
         )
 
     async def delete(self, client_id: int) -> None:
-        """Delete an individual client and its parent client record.
+        """Delete an individual client and all associated accounts and transactions.
 
         Args:
             client_id: The ID of the individual client to delete.
@@ -191,10 +193,45 @@ class IndividualClientService:
 
         """
         individual = await self.__get_by_id(client_id)
-        parent_client = await self.session.get(Client, individual.client_id)
+        client_id_fk = individual.client_id
+
+        # Delete all accounts and transactions associated with this client
+        stmt_accounts = select(Account).where(
+            Account.client_id == client_id_fk
+        )
+        result_accounts = await self.session.exec(stmt_accounts)
+        accounts = result_accounts.all()
+
+        for account in accounts:
+            # Delete CheckingAccount linked to this account
+            stmt_checking = select(CheckingAccount).where(
+                CheckingAccount.account_id == account.id
+            )
+            result_checking = await self.session.exec(stmt_checking)
+            checking = result_checking.first()
+            if checking:
+                await self.session.delete(checking)
+
+            # Delete Transactions linked to this account
+            stmt_transactions = select(Transaction).where(
+                Transaction.account_id == account.id
+            )
+            result_transactions = await self.session.exec(stmt_transactions)
+            transactions = result_transactions.all()
+            for transaction in transactions:
+                await self.session.delete(transaction)
+
+            # Delete the base Account
+            await self.session.delete(account)
+
+        # Delete the specialized individual record
         await self.session.delete(individual)
+
+        # Delete the base client record
+        parent_client = await self.session.get(Client, client_id_fk)
         if parent_client:
             await self.session.delete(parent_client)
+
         await self.session.commit()
 
     async def __get_by_id(self, client_id) -> IndividualClient:
