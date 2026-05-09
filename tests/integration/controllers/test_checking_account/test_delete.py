@@ -77,6 +77,7 @@ async def test_delete_checking_account_cascade(
 
     async with AsyncSession(async_engine) as session:
         db_checking = await session.get(CheckingAccount, account_id)
+        assert db_checking is not None
         parent_id = db_checking.account_id
 
     await client.delete(

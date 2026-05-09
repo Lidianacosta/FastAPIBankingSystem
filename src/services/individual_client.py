@@ -103,7 +103,7 @@ class IndividualClientService:
 
         return IndividualClientOut(
             **individual.model_dump(),
-            address=client.address if client else "",
+            address=client.address or "" if client else "",
         )
 
     async def read_all(
@@ -132,7 +132,7 @@ class IndividualClientService:
             output.append(
                 IndividualClientOut(
                     **individual.model_dump(),
-                    address=client.address if client else "",
+                    address=client.address or "" if client else "",
                 )
             )
         return output

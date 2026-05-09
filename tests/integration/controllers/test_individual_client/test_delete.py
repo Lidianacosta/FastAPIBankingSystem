@@ -76,6 +76,7 @@ async def test_delete_individual_client_cascade(
         )
         result = await session.exec(statement)
         individual = result.first()
+        assert individual is not None
         client_id = individual.client_id
 
     await client.delete(

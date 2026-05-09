@@ -59,3 +59,11 @@ convention = "google"
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
+
+[tool.mypy]
+python_version = "3.12"
+exclude = ["migrations/", "tests/"]
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = true
+show_error_codes = true

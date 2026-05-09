@@ -71,6 +71,17 @@ O projeto segue um padrão MVC/Service orientado a serviços:
 
 ---
 
+## ⚙️ CI/CD Pipeline
+
+O projeto utiliza **GitHub Actions** para garantir a qualidade contínua do código. A cada `push` ou `pull request` na branch `main`, a pipeline executa automaticamente:
+- **Linting & Formatting:** Via `Ruff`.
+- **Type Checking:** Via `Mypy`.
+- **Automated Tests:** Via `Pytest`.
+
+Certifique-se de que todos os passos passem localmente antes de enviar seu código!
+
+---
+
 ## 🗄️ Banco de Dados e Migrações
 
 ```bash
