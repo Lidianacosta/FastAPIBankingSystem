@@ -25,17 +25,17 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version-file: "pyproject.toml"
 
       - name: Install uv
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
         with:
           enable-cache: true
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@3975257e7a4c273d10292cd762d69a013bb139c1
-        with:
-          python-version: "3.12"
 
       - name: Install dependencies
         run: uv sync
