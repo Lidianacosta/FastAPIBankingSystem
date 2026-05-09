@@ -1,3 +1,5 @@
+import secrets
+
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlmodel import SQLModel
@@ -59,10 +61,10 @@ async def client(db):
 async def access_token(client: AsyncClient):
 
     async with AsyncSession(async_engine) as session:
-        plain_password = "test_user"
+        test_password = secrets.token_urlsafe(16)
         test_user = User(
             username="test_user",
-            hashed_password=get_password_hash(plain_password),
+            hashed_password=get_password_hash(test_password),
         )
         session.add(test_user)
         await session.commit()
@@ -73,7 +75,7 @@ async def access_token(client: AsyncClient):
         "/api/auth/token",
         data={
             "username": test_user.username,
-            "password": plain_password,
+            "password": test_password,
             "grant_type": "password",
         },
         headers={

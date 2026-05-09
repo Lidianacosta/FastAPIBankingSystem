@@ -101,10 +101,10 @@ collection:
           mimeType: application/json
           text: |-
             {
-              "email": "lidianacostasouza@gmail.com",
-              "full_name": "Lidiana Costa de Souza",
+              "email": "manager@example.com",
+              "full_name": "System Manager",
               "disabled": false,
-              "plain_password": "lidiana"
+              "plain_password": "YOUR_PASSWORD"
             }
         headers:
           - name: Content-Type
@@ -2385,3 +2385,4 @@ spec:
     id: spc_278fc331d48f4310b4f237105151b871
     created: 1774551410134
     modified: 1774551410134
+dified: 1774551410134

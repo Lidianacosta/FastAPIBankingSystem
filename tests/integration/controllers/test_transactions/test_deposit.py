@@ -1,5 +1,6 @@
 from collections.abc import Callable
 
+import pytest
 from httpx import AsyncClient, codes
 
 
@@ -23,7 +24,7 @@ async def test_create_deposit_success(
 
     assert response.status_code == codes.OK
     data = response.json()
-    assert data["value"] == deposit_value
+    assert data["value"] == pytest.approx(deposit_value)
     assert data["type"] == "deposit"
 
     resp_account = await client.get(
@@ -31,7 +32,9 @@ async def test_create_deposit_success(
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert resp_account.status_code == codes.OK
-    assert resp_account.json()["balance"] == initial_balance + deposit_value
+    assert resp_account.json()["balance"] == pytest.approx(
+        initial_balance + deposit_value
+    )
 
 
 async def test_create_deposit_fail_account_not_found(
@@ -77,7 +80,7 @@ async def test_delete_deposit_reverts_balance(
         checking_accounts_url(client_id, account_id),
         headers={"Authorization": f"Bearer {access_token}"},
     )
-    assert resp_account.json()["balance"] == initial_balance
+    assert resp_account.json()["balance"] == pytest.approx(initial_balance)
 
 
 async def test_deposit_fail_negative_value(

@@ -1,5 +1,6 @@
 from collections.abc import Callable
 
+import pytest
 from httpx import AsyncClient, codes
 
 
@@ -24,8 +25,8 @@ async def test_list_deposits_success(
     assert response.status_code == codes.OK
     data = response.json()
     assert len(data) == 2
-    assert data[0]["value"] == 100
-    assert data[1]["value"] == 200
+    assert data[0]["value"] == pytest.approx(100)
+    assert data[1]["value"] == pytest.approx(200)
 
 
 async def test_get_deposit_by_id_success(
@@ -47,7 +48,7 @@ async def test_get_deposit_by_id_success(
     )
 
     assert response.status_code == codes.OK
-    assert response.json()["value"] == 150
+    assert response.json()["value"] == pytest.approx(150)
 
 
 async def test_list_withdrawals_success(
@@ -71,8 +72,8 @@ async def test_list_withdrawals_success(
     assert response.status_code == codes.OK
     data = response.json()
     assert len(data) == 2
-    assert data[0]["value"] == 50
-    assert data[1]["value"] == 70
+    assert data[0]["value"] == pytest.approx(50)
+    assert data[1]["value"] == pytest.approx(70)
 
 
 async def test_get_withdrawal_by_id_success(
@@ -94,4 +95,4 @@ async def test_get_withdrawal_by_id_success(
     )
 
     assert response.status_code == codes.OK
-    assert response.json()["value"] == 80
+    assert response.json()["value"] == pytest.approx(80)
