@@ -104,7 +104,7 @@ collection:
               "email": "manager@example.com",
               "full_name": "System Manager",
               "disabled": false,
-              "plain_password": "YOUR_PASSWORD"
+              "plain_password": "{{ _.password }}"
             }
         headers:
           - name: Content-Type
@@ -951,8 +951,8 @@ environments:
         host: 127.0.0.1:8000
         oauth2ClientId: clientId
         oauth2ClientSecret: clientSecret
-        oauth2Username: lidiana
-        oauth2Password: lidiana
+        oauth2Username: YOUR_USERNAME
+        oauth2Password: YOUR_PASSWORD
         client_id: 1
         account_id: 1
         withdrawal_id: 1
@@ -2384,5 +2384,8 @@ spec:
   meta:
     id: spc_278fc331d48f4310b4f237105151b871
     created: 1774551410134
+    modified: 1774551410134
+dified: 1774551410134
+eated: 1774551410134
     modified: 1774551410134
 dified: 1774551410134
