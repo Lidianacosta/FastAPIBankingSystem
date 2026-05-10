@@ -18,7 +18,7 @@ from src.schemas.user import User
 from src.services.user import UserServiceDep
 from src.utils.password import verify_password
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
 
 
 async def authenticate_user(
