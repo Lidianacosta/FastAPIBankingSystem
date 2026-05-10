@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     algorithm: str = Field(default="HS256")
     access_token_expire_minutes: int = Field(default=30)
 
+    first_superuser_username: str | None = Field(default=None)
+    first_superuser_password: str | None = Field(default=None)
+
     model_config = SettingsConfigDict(env_file=".env")
 
 

@@ -13,6 +13,10 @@ services:
         generateValue: true
       - key: ENVIRONMENT
         value: production
+      - key: FIRST_SUPERUSER_USERNAME
+        sync: false
+      - key: FIRST_SUPERUSER_PASSWORD
+        sync: false
 
 databases:
   - name: fastapibank-db
