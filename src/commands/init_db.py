@@ -38,9 +38,10 @@ async def create_user_if_not_exists(
         user_in = UserIn(
             username=username,
             plain_password=password,
+            is_demo=is_demo,
         )
         new_user = User(
-            **user_in.model_dump(exclude={"plain_password"}), is_demo=is_demo
+            **user_in.model_dump(exclude={"plain_password"})
         )
         new_user.hashed_password = get_password_hash(user_in.plain_password)
         session.add(new_user)
