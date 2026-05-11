@@ -82,6 +82,15 @@ Certifique-se de que todos os passos passem localmente antes de enviar seu códi
 
 ---
 
+## 🛡️ Modo Demonstração (Demo Mode)
+
+O sistema possui uma trava de segurança para contas de demonstração:
+- **Identificação:** Usuários com a flag `is_demo: true` no banco de dados.
+- **Restrição:** Bloqueio automático de atualizações de perfil (nome, email, senha) via dependência `forbid_demo_user`.
+- **Automação:** Criação automática de usuário demo via variáveis `DEMO_USER_USERNAME` e `DEMO_USER_PASSWORD`.
+
+---
+
 ## 🚀 Deployment
 
 O deploy da aplicação é realizado na plataforma **Render** utilizando **Docker**.

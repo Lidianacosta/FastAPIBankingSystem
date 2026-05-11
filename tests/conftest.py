@@ -90,3 +90,33 @@ async def access_token(client: AsyncClient):
         )
 
     return response.json()["access_token"]
+
+
+@pytest_asyncio.fixture
+async def demo_access_token(client: AsyncClient):
+    async with AsyncSession(async_engine) as session:
+        test_password = secrets.token_urlsafe(16)
+        test_user = User(
+            username="demo_user",
+            hashed_password=get_password_hash(test_password),
+            is_demo=True,
+        )
+        session.add(test_user)
+        await session.commit()
+        await session.refresh(test_user)
+        await session.close()
+
+    response = await client.post(
+        "/api/auth/token",
+        data={
+            "username": test_user.username,
+            "password": test_password,
+            "grant_type": "password",
+        },
+        headers={
+            "Authorization": "Bearer token",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    )
+
+    return response.json()["access_token"]

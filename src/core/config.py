@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     first_superuser_username: str | None = Field(default=None)
     first_superuser_password: str | None = Field(default=None)
 
+    demo_user_username: str | None = Field(default=None)
+    demo_user_password: str | None = Field(default=None)
+
     model_config = SettingsConfigDict(env_file=".env")
 
 

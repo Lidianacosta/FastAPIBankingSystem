@@ -55,3 +55,19 @@ async def test_update_user_me_password_success(
 async def test_user_me_unauthorized(client: AsyncClient):
     response = await client.get("/api/users/me/")
     assert response.status_code == codes.UNAUTHORIZED
+
+
+async def test_update_user_me_fail_for_demo_user(
+    client: AsyncClient, demo_access_token: str
+):
+    response = await client.patch(
+        "/api/users/me/",
+        json={"full_name": "Should Fail"},
+        headers={"Authorization": f"Bearer {demo_access_token}"},
+    )
+
+    assert response.status_code == codes.FORBIDDEN
+    assert (
+        response.json()["detail"]
+        == "Action not permitted in demonstration mode."
+    )

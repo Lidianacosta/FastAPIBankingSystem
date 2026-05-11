@@ -25,3 +25,4 @@ class User(Base, table=True):
     full_name: str | None = None
     disabled: bool | None = None
     hashed_password: str
+    is_demo: bool = False

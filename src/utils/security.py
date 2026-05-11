@@ -131,3 +131,28 @@ def get_current_active_user(
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+
+def forbid_demo_user(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    """Ensure the current user is not a demo user.
+
+    Used to protect sensitive operations from being performed by demo accounts.
+
+    Args:
+        current_user: The authenticated active user.
+
+    Returns:
+        The current user if they are not a demo user.
+
+    Raises:
+        HTTPException: 403 if the user is a demo user.
+
+    """
+    if current_user.is_demo:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Action not permitted in demonstration mode.",
+        )
+    return current_user
