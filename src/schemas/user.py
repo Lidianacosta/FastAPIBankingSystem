@@ -17,6 +17,7 @@ class User(BaseModel):
         email: Optional contact email address.
         full_name: Optional real name of the user.
         disabled: Flag indicating if the user is suspended from logging in.
+        is_demo: Flag indicating if the user is a demonstration account.
 
     """
 
@@ -24,6 +25,7 @@ class User(BaseModel):
     email: str | None = None
     full_name: str | None = None
     disabled: bool | None = None
+    is_demo: bool = False
 
 
 class UserDB(User):
